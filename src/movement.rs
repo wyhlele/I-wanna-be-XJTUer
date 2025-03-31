@@ -49,6 +49,8 @@ fn update_position(mut query: Query<(&mut Velocity,&mut Transform)>,time: Res<Ti
 
 fn update_velocity(mut query: Query<(&Transform,&Accelerration,&mut Velocity)>,time: Res<Time>){
     for (transform,accelerration,mut velocity) in query.iter_mut(){
-        velocity.value_y += accelerration.value * time.delta_secs();
+        if transform.translation.y >= 0.0{
+            velocity.value_y += accelerration.value * time.delta_secs();
+        }
     }
 }
