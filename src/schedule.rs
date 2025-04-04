@@ -6,7 +6,7 @@ use crate::state::GameState;
 pub enum InGameSet{
     UserInput,
     EntityUpdates,
-    CollisionDetection,
+    CameraFollowed,
 }
 
 pub struct SchedulePlugin;
@@ -16,14 +16,14 @@ impl Plugin for SchedulePlugin{
         app.configure_sets(
             Update,
             (
-                InGameSet::CollisionDetection,
+                InGameSet::CameraFollowed,
                 InGameSet::UserInput,
                 InGameSet::EntityUpdates,
             ).chain().run_if(in_state(GameState::InGame))
         )
         .add_systems(Update,
              apply_deferred
-                .after(InGameSet::CollisionDetection)
+                .after(InGameSet::CameraFollowed)
                 .before(InGameSet::UserInput)
         );
     }
