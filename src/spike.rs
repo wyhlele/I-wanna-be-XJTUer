@@ -15,49 +15,26 @@ impl Plugin for SpikePlugin{
     }
 }
 
-fn spawn_spike(
-    mut commands: Commands,
-    image_assets: Res<ImageAssets>,
-){
+fn spawn_single_spike(
+    commands: &mut Commands,
+    sprtie: &Handle<Image>,
+    x: f32,y: f32,
+    angle: f32,
+) -> Entity{
     commands.spawn((
         Sprite{
-            image: image_assets.spike.clone(),
-            ..Default::default()
-        },
-        Trap,
-    )).insert(
-        Transform::from_xyz(64.0,-32.0,0.0)
-    ).insert(
-        RigidBody::Dynamic
-    ).insert(
-        GravityScale(0.0)
-    ).insert(
-        Collider::triangle(
-            Vec2::new(-16.0, -16.0),Vec2::new(16.0, -16.0),Vec2::new(0.0, 16.0)
-        )
-    ).insert(
-        CollisionGroups::new(
-            Group::GROUP_3,
-            Group::GROUP_1|Group::GROUP_4,
-        )
-    ).insert(SolverGroups::new(
-        Group::GROUP_3,
-        Group::GROUP_1,
-        )
-    );
-
-    commands.spawn((
-        Sprite{
-            image: image_assets.spike.clone(),
+            image: sprtie.clone(),
             ..Default::default()
         },
         Trap,
     )).insert(
         Transform{
-            translation: Vec3::new(-64.0,-32.0,0.0),
-            rotation: Quat::from_rotation_z(-90.0 * TO_RAD),
+            translation: Vec3::new(x,y,0.0),
+            rotation: Quat::from_rotation_z(angle * TO_RAD),
             ..default()
         }
+    ).insert(
+        Velocity::zero()
     ).insert(
         RigidBody::Dynamic
     ).insert(
@@ -75,7 +52,17 @@ fn spawn_spike(
         Group::GROUP_3,
         Group::GROUP_1,
         )
-    );
+    ).id()
+}
+
+fn spawn_spike(
+    mut commands: Commands,
+    image_assets: Res<ImageAssets>,
+){
+    let image = image_assets.spike.clone();
+    spawn_single_spike(&mut commands, &image, 64.0, -32.0, 0.0);
+    spawn_single_spike(&mut commands, &image, -64.0, -32.0, -90.0);
+    spawn_single_spike(&mut commands, &image, 800.0, -32.0, 0.0);
 }
 
 

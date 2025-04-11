@@ -42,6 +42,14 @@ fn spawn_ground(
     commands.spawn(sprite.clone()).insert(
         Transform::from_xyz(-256.0,-32.0,0.0)
     );
+
+    x= -320.0;
+    while x <= 320.0{
+        commands.spawn(sprite.clone()).insert(
+            Transform::from_xyz(x+800.0,-64.0,0.0)
+        );
+        x += 32.0;
+    };
     
 
     commands.spawn(
@@ -73,6 +81,26 @@ fn spawn_ground(
         Transform::from_xyz(-256.0,-32.0,0.0)
     ).insert(
         Collider::cuboid(16.0, 16.0)
+    ).insert(
+        LockedAxes::ROTATION_LOCKED
+    ).insert(
+        CollisionGroups::new(
+            Group::GROUP_2,
+            Group::GROUP_1|Group::GROUP_4,
+        )
+    ).insert(SolverGroups::new(
+        Group::GROUP_2,
+        Group::GROUP_1,
+    ));
+
+    commands.spawn(
+        RigidBody::Fixed
+    ).insert(
+        GravityScale(0.0)
+    ).insert(
+        Transform::from_xyz(800.0,-64.0,0.0)
+    ).insert(
+        Collider::cuboid(336.0, 16.0)
     ).insert(
         LockedAxes::ROTATION_LOCKED
     ).insert(

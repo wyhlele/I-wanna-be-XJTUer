@@ -6,7 +6,7 @@ use bevy::sprite::{TextureAtlas, TextureAtlasLayout,Sprite};
 use crate::asset_loader::ImageAssets;
 use crate::kid_saver::KidSaver;
 use crate::schedule::InGameSet;
-use crate::state::GameState;
+use crate::state::{GameState, NeedReload};
 use crate::trap::Trap;
 
 const MOVE_SPEED: f32 = 150.0;
@@ -21,7 +21,7 @@ pub struct Kid{
 }
 
 #[derive(Resource)]
-struct AnimationTimer(Timer);
+pub struct AnimationTimer(Timer);
 
 pub struct KidPlugin;
 
@@ -95,7 +95,8 @@ fn spawn_kid(
         )
     ).insert(
         KinematicCharacterController::default()
-    ).insert(ActiveEvents::COLLISION_EVENTS);
+    ).insert(ActiveEvents::COLLISION_EVENTS)
+    .insert(NeedReload);
     commands.insert_resource(AnimationTimer(Timer::from_seconds(0.1, TimerMode::Repeating)));
 }
 
@@ -217,6 +218,29 @@ fn kid_display_events(
                         direction * 1600.0, 
                         transform_a.translation.truncate(), 
                         transform_b.translation.truncate()
+                    ));
+                    match state.get() {
+                        GameState::InGame => next_state.set(GameState::GameOver),
+                        _ => {},
+                    }
+                }
+
+
+                let is_entity1_a = kid_query.get(*entity_a).is_ok();
+                let is_entity2_b = trap_query.get(*entity_b).is_ok();
+                if is_entity1_a && is_entity2_b{
+                    commands.entity(*entity_a).remove::<LockedAxes>();
+
+                    let transform_a = transforms.get(*entity_a).unwrap();
+                    let transform_b = transforms.get(*entity_b).unwrap();
+                    let direction = (transform_a.translation.truncate() 
+                        - transform_b.translation.truncate()).normalize();
+
+                    commands.entity(*entity_a).insert(
+                        ExternalImpulse::at_point(
+                        direction * 1600.0, 
+                        transform_b.translation.truncate(), 
+                        transform_a.translation.truncate()
                     ));
                     match state.get() {
                         GameState::InGame => next_state.set(GameState::GameOver),

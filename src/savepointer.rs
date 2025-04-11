@@ -19,7 +19,7 @@ pub struct SavePointerPlugin;
 impl Plugin for SavePointerPlugin{
     fn build(&self,app: &mut App){
         app.add_systems(Startup,create_savepointer)
-            .add_systems(Update,do_save.in_set(InGameSet::CameraFollowed));
+            .add_systems(Update,do_save.in_set(InGameSet::SaveSpawnPoint));
     }
 }
 
@@ -89,12 +89,39 @@ fn do_save(
                         }
                     }
                 }
+
+                let is_entity1_a = kid_query.get(*entity_a).is_ok();
+                let is_entity2_b = savepointer_query.get(*entity_b).is_ok();
+                if is_entity1_a && is_entity2_b{
+                    let pointer = savepointer_query.get(*entity_b).unwrap();
+                    if pointer.id == 0 || pointer.id>kid_saver.save_id{
+                        kid_saver.save_id = pointer.id;
+                        kid_saver.position = pointer.position;
+                    }
+                    let mut sprite = sprite_query.get_mut(*entity_b);
+                    if let Ok(ssprite) = &mut sprite{
+                        if let Some(atlas) = &mut ssprite.texture_atlas{
+                            atlas.index = 1;
+                        }
+                    }
+                }
             }
             CollisionEvent::Stopped(entity_a, entity_b, _) => {
                 let is_entity1_b = kid_query.get(*entity_b).is_ok();
                 let is_entity2_a = savepointer_query.get(*entity_a).is_ok();
                 if is_entity1_b && is_entity2_a{
                     let mut sprite = sprite_query.get_mut(*entity_a);
+                    if let Ok(ssprite) = &mut sprite{
+                        if let Some(atlas) = &mut ssprite.texture_atlas{
+                            atlas.index = 0;
+                        }
+                    }
+                }
+
+                let is_entity1_a = kid_query.get(*entity_a).is_ok();
+                let is_entity2_b = savepointer_query.get(*entity_b).is_ok();
+                if is_entity1_a && is_entity2_b{
+                    let mut sprite = sprite_query.get_mut(*entity_b);
                     if let Ok(ssprite) = &mut sprite{
                         if let Some(atlas) = &mut ssprite.texture_atlas{
                             atlas.index = 0;

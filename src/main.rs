@@ -9,6 +9,11 @@ mod trap;
 mod spike;
 mod savepointer;
 mod bullet;
+mod apple;
+mod moveto;
+mod hidden;
+
+mod test;
 
 use bevy::prelude::*;
 use bevy_rapier2d::prelude::*;
@@ -22,7 +27,11 @@ use kid_saver::KidSaverPlugin;
 use spike::SpikePlugin;
 use savepointer::SavePointerPlugin;
 use bullet::BulletPlugin;
+use apple::ApplePlugin;
+use moveto::MovePlugin;
+use hidden::HiddenPlugin;
 
+use test::TestPlugin;
 
 fn main() {
     App::new()
@@ -50,8 +59,12 @@ fn main() {
         .add_plugins(SpikePlugin)
         .add_plugins(SavePointerPlugin)
         .add_plugins(BulletPlugin)
+        .add_plugins(ApplePlugin)
+        .add_plugins(MovePlugin)
+        .add_plugins(TestPlugin)
+        .add_plugins(HiddenPlugin)
         .add_plugins(RapierPhysicsPlugin::<NoUserData>::pixels_per_meter(100.0))
-        .add_plugins(RapierDebugRenderPlugin::default())
+        // .add_plugins(RapierDebugRenderPlugin::default())
         .run();
 }
 

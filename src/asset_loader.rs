@@ -4,12 +4,13 @@ use crate::state::GameState;
 
 #[derive(Resource, Debug, Default)]
 pub struct ImageAssets{
-    pub kid : Handle<Image>,
+    pub apple: Handle<Image>,
     pub bg: Handle<Image>,
     pub bullet: Handle<Image>,
-    pub spike: Handle<Image>,
-    pub save: Handle<Image>,
     pub gameover: Handle<Image>,
+    pub kid : Handle<Image>,
+    pub save: Handle<Image>,
+    pub spike: Handle<Image>,
 }
 
 pub struct AssetLoaderPlugin;
@@ -33,6 +34,7 @@ fn load_assets(
         spike: asset_server.load("images/spike.png"),
         save: asset_server.load("images/save.png"),
         gameover: asset_server.load("images/gameover.png"),
+        apple: asset_server.load("images/apple.png"),
     };
     next_state.set(GameState::InGame);
 }

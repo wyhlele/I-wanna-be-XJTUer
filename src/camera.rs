@@ -35,8 +35,8 @@ fn camera_follow(
     else{
         return;
     };
-    camera.translation.x = ((kid.translation.x - 304.0)/608.0).trunc() * 608.0;
-    camera.translation.y = ((kid.translation.y - 400.0)/800.0).trunc() * 800.0;
+    camera.translation.x = ((kid.translation.x + 400.0)/800.0).floor() * 800.0;
+    camera.translation.y = ((kid.translation.y + 304.0)/608.0).floor() * 608.0;
 }
 
 fn gameover_text_spawn(

@@ -6,6 +6,7 @@ use bevy::sprite::Sprite;
 use crate::asset_loader::ImageAssets;
 use crate::kid::Kid;
 use crate::schedule::InGameSet;
+use crate::state::NeedReload;
 
 #[derive(Component, Debug, Default)]
 pub struct Bullet;
@@ -28,7 +29,6 @@ fn spawn_bullet(
     keyboard_input:Res<ButtonInput<KeyCode>>,
 ){
     if keyboard_input.just_pressed(KeyCode::KeyZ){
-        info!("Z pressed");
         let Ok((transform,kid)) = query.get_single()
         else{
             return ;
@@ -69,7 +69,8 @@ fn spawn_bullet(
             Group::GROUP_4,
             Group::NONE,
             )
-        ).insert(ActiveEvents::COLLISION_EVENTS);
+        ).insert(ActiveEvents::COLLISION_EVENTS)
+        .insert(NeedReload);
     }
 }
 
@@ -79,7 +80,6 @@ fn remove_bullet(
     bullet_query: Query<&Bullet>,
 ){
     for collision_event in collision_events.read() {
-        // info!("{:?}",collision_event);
         match collision_event {
             CollisionEvent::Started(_, entity_b, _) => {
                 let is_entity1_b = bullet_query.get(*entity_b).is_ok();

@@ -1,8 +1,5 @@
 use bevy::prelude::*;
 
-use crate::kid::Kid;
-
-
 #[derive(Debug, Default, States, Hash, Clone, Copy, Eq, PartialEq)]
 pub enum GameState {
     #[default]
@@ -11,6 +8,9 @@ pub enum GameState {
     Reload,
     GameOver,
 }
+
+#[derive(Component, Debug, Default)]
+pub struct NeedReload;
 
 pub struct StatePlugin;
 
@@ -41,14 +41,14 @@ fn reload_game(
     mut commands: Commands,
     mut next_state: ResMut<NextState<GameState>>,
     keyboard_input:Res<ButtonInput<KeyCode>>,
-    query: Query<Entity,With<Kid>>,
+    query: Query<Entity,With<NeedReload>>,
 ){
     if keyboard_input.pressed(KeyCode::KeyR){
         next_state.set(GameState::Reload);
     }
     if keyboard_input.just_released(KeyCode::KeyR){
-        for kid in &query{
-            commands.entity(kid).despawn_recursive();
+        for entity in &query{
+            commands.entity(entity).despawn_recursive();
         }
         next_state.set(GameState::InGame);
     }
