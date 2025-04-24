@@ -4,7 +4,7 @@ use bevy_rapier2d::prelude::*;
 use bevy::sprite::Sprite;
 
 use crate::asset_loader::ImageAssets;
-use crate::kid::Kid;
+use crate::base::kid::Kid;
 use crate::schedule::InGameSet;
 use crate::state::NeedReload;
 

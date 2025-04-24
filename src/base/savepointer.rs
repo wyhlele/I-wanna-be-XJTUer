@@ -3,8 +3,7 @@ use bevy_rapier2d::prelude::*;
 
 use bevy::sprite::Sprite;
 
-use crate::asset_loader::ImageAssets;
-use crate::kid::Kid;
+use crate::base::kid::Kid;
 use crate::kid_saver::KidSaver;
 use crate::schedule::InGameSet;
 
@@ -18,34 +17,30 @@ pub struct SavePointerPlugin;
 
 impl Plugin for SavePointerPlugin{
     fn build(&self,app: &mut App){
-        app.add_systems(Startup,create_savepointer)
-            .add_systems(Update,do_save.in_set(InGameSet::SaveSpawnPoint));
+        app.add_systems(Update,do_save.in_set(InGameSet::SaveSpawnPoint));
     }
 }
 
-fn create_savepointer(
-    mut commands: Commands,
-    image_assets: Res<ImageAssets>,
-    mut texture_atlases: ResMut<Assets<TextureAtlasLayout>>,
-){
-    let layout = TextureAtlasLayout::from_grid(UVec2::new(32, 32), 2, 1, None, None);
-    let atlas_layout = texture_atlases.add(layout);
-    let atlas = TextureAtlas{
-        layout : atlas_layout,
-        index : 0,
-    };
+pub fn spawn_single_savepointer(
+    commands: &mut Commands,
+    sprtie: &Handle<Image>,
+    atlas: &TextureAtlas,
+    x: f32,y: f32,
+    bx: f32, by:f32,
+    id: u8,
+) -> Entity{
     commands.spawn((
         Sprite{
-            image: image_assets.save.clone(),
+            image: sprtie.clone(),
             texture_atlas:Some(atlas.clone()),
             ..Default::default()
         },
         SavePointer{
-            id: 1,
-            position: Vec2::new(192.0, -32.0)
+            id: id,
+            position: Vec2::new(bx+32.*x,by+32.*y)
         },
     )).insert(
-        Transform::from_xyz(192.0,-32.0,-0.1)
+        Transform::from_xyz(bx+32.*x,by+32.*y,-0.1)
     ).insert(
         RigidBody::Dynamic
     ).insert(
@@ -61,7 +56,7 @@ fn create_savepointer(
         Group::GROUP_4,
         Group::NONE,
         )
-    );
+    ).id()
 }
 
 fn do_save(

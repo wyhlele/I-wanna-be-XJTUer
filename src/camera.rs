@@ -1,7 +1,7 @@
 use bevy::prelude::*;
 
 use crate::asset_loader::ImageAssets;
-use crate::kid::Kid;
+use crate::base::kid::Kid;
 use crate::schedule::InGameSet;
 use crate::state::GameState;
 

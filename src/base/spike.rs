@@ -3,22 +3,15 @@ use bevy_rapier2d::prelude::*;
 
 use bevy::sprite::Sprite;
 
-use crate::asset_loader::ImageAssets;
-use crate::trap::Trap;
+use crate::base::trap::Trap;
 
 const TO_RAD :f32 = 3.1415926 / 180.0;
-pub struct SpikePlugin;
 
-impl Plugin for SpikePlugin{
-    fn build(&self, app: &mut App){
-        app.add_systems(PostStartup, spawn_spike);
-    }
-}
-
-fn spawn_single_spike(
+pub fn spawn_single_spike(
     commands: &mut Commands,
     sprtie: &Handle<Image>,
     x: f32,y: f32,
+    bx: f32, by: f32,
     angle: f32,
 ) -> Entity{
     commands.spawn((
@@ -29,7 +22,7 @@ fn spawn_single_spike(
         Trap,
     )).insert(
         Transform{
-            translation: Vec3::new(x,y,0.0),
+            translation: Vec3::new(x*32.+bx,y*32.+by,-0.3),
             rotation: Quat::from_rotation_z(angle * TO_RAD),
             ..default()
         }
@@ -53,16 +46,6 @@ fn spawn_single_spike(
         Group::GROUP_1,
         )
     ).id()
-}
-
-fn spawn_spike(
-    mut commands: Commands,
-    image_assets: Res<ImageAssets>,
-){
-    let image = image_assets.spike.clone();
-    spawn_single_spike(&mut commands, &image, 64.0, -32.0, 0.0);
-    spawn_single_spike(&mut commands, &image, -64.0, -32.0, -90.0);
-    spawn_single_spike(&mut commands, &image, 800.0, -32.0, 0.0);
 }
 
 

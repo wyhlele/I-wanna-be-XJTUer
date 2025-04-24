@@ -1,37 +1,32 @@
-mod kid;
+mod asset_loader;
+mod base;
 mod camera;
+mod festival;
+mod kid_saver;
+mod menu;
 mod schedule;
 mod state;
-mod ground;
-mod asset_loader;
-mod kid_saver;
-mod trap;
-mod spike;
-mod savepointer;
-mod bullet;
-mod apple;
-mod moveto;
-mod hidden;
-
-mod test;
 
 use bevy::prelude::*;
 use bevy_rapier2d::prelude::*;
-use ground::GroundPlugin;
-use kid::KidPlugin;
-use camera::CameraPlugin;
+
 use asset_loader::AssetLoaderPlugin;
+use base::kid::KidPlugin;
+use base::apple::ApplePlugin;
+use base::moveto::MovePlugin;
+use base::hidden::HiddenPlugin;
+use base::wrap::WarpPlugin;
+use base::savepointer::SavePointerPlugin;
+use base::bullet::BulletPlugin;
+use base::toucher::ToucherPlugin;
+use camera::CameraPlugin;
+use festival::level1::Fest1Plugin;
+use festival::leaf::LeafPlugin;
+use kid_saver::KidSaverPlugin;
+use menu::startpage::StartPagePlugin;
 use schedule::SchedulePlugin;
 use state::StatePlugin;
-use kid_saver::KidSaverPlugin;
-use spike::SpikePlugin;
-use savepointer::SavePointerPlugin;
-use bullet::BulletPlugin;
-use apple::ApplePlugin;
-use moveto::MovePlugin;
-use hidden::HiddenPlugin;
 
-use test::TestPlugin;
 
 fn main() {
     App::new()
@@ -53,18 +48,20 @@ fn main() {
         .add_plugins(CameraPlugin)
         .add_plugins(SchedulePlugin)
         .add_plugins(StatePlugin)
-        .add_plugins(GroundPlugin)
         .add_plugins(AssetLoaderPlugin)
         .add_plugins(KidSaverPlugin)
-        .add_plugins(SpikePlugin)
         .add_plugins(SavePointerPlugin)
         .add_plugins(BulletPlugin)
         .add_plugins(ApplePlugin)
         .add_plugins(MovePlugin)
-        .add_plugins(TestPlugin)
         .add_plugins(HiddenPlugin)
+        .add_plugins(WarpPlugin)
+        .add_plugins(StartPagePlugin)
+        .add_plugins(Fest1Plugin)
+        .add_plugins(ToucherPlugin)
+        .add_plugins(LeafPlugin)
         .add_plugins(RapierPhysicsPlugin::<NoUserData>::pixels_per_meter(100.0))
-        // .add_plugins(RapierDebugRenderPlugin::default())
+        .add_plugins(RapierDebugRenderPlugin::default())
         .run();
 }
 

@@ -7,7 +7,7 @@ use crate::asset_loader::ImageAssets;
 use crate::kid_saver::KidSaver;
 use crate::schedule::InGameSet;
 use crate::state::{GameState, NeedReload};
-use crate::trap::Trap;
+use crate::base::trap::Trap;
 
 const MOVE_SPEED: f32 = 150.0;
 const JUMP_FIRST: f32 = 8.5;
@@ -27,7 +27,8 @@ pub struct KidPlugin;
 
 impl Plugin for KidPlugin{
     fn build(&self, app: &mut App){
-        app.add_systems(OnExit(GameState::Reload), spawn_kid)
+        app.add_systems(PostStartup, spawn_timer)
+            .add_systems(OnExit(GameState::Reload), spawn_kid)
             .add_systems(
                 Update,
                 (
@@ -42,6 +43,62 @@ impl Plugin for KidPlugin{
                 Update, kid_display_events
             );
     }
+}
+
+fn spawn_timer(
+    mut commands: Commands, 
+){
+    commands.insert_resource(AnimationTimer(Timer::from_seconds(0.1, TimerMode::Repeating)));
+}
+
+
+pub fn spawn_single_kid(
+    commands: &mut Commands,
+    sprtie: &Handle<Image>,
+    atlas: &TextureAtlas,
+    x: f32,y: f32,
+){
+    commands.spawn((
+        Sprite{
+            image: sprtie.clone(),
+            texture_atlas: Some(atlas.clone()),
+            ..Default::default()
+        },
+        Kid{state: 0,jump_time: 2},
+    )).insert(
+        Transform::from_xyz(x,y,0.0)
+    ).insert(
+        Velocity {
+            linvel: Vec2::new(0.0, 0.0),
+            angvel: 0.0,
+        }
+    ).insert(
+        RigidBody::Dynamic
+    ).insert(
+        GravityScale(1.0)
+    ).insert(
+        Collider::cuboid(6.3, 10.5)
+    ).insert(
+        ColliderMassProperties::Mass(2.0)
+    ).insert(
+        Sleeping::disabled()
+    ).insert(
+        Ccd::enabled()
+    ).insert(
+        LockedAxes::ROTATION_LOCKED
+    ).insert(
+        CollisionGroups::new(
+            Group::GROUP_1,
+            Group::GROUP_2|Group::GROUP_3|Group::GROUP_4,
+        )
+    ).insert(SolverGroups::new(
+        Group::GROUP_1,
+        Group::GROUP_2|Group::GROUP_3,
+        )
+    ).insert(
+        KinematicCharacterController::default()
+    ).insert(ActiveEvents::COLLISION_EVENTS)
+    .insert(NeedReload);
 }
 
 fn spawn_kid(
@@ -97,7 +154,6 @@ fn spawn_kid(
         KinematicCharacterController::default()
     ).insert(ActiveEvents::COLLISION_EVENTS)
     .insert(NeedReload);
-    commands.insert_resource(AnimationTimer(Timer::from_seconds(0.1, TimerMode::Repeating)));
 }
 
 

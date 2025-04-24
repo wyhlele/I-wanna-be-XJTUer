@@ -4,8 +4,8 @@ use bevy_rapier2d::prelude::*;
 use bevy::sprite::Sprite;
 
 use crate::asset_loader::ImageAssets;
-use crate::trap::Trap;
 use crate::schedule::InGameSet;
+use crate::base::trap::Trap;
 
 pub struct ApplePlugin;
 
@@ -74,7 +74,7 @@ fn spawn_apple(
         index : 0,
     };
     let image = image_assets.apple.clone();
-    spawn_single_apple(&mut commands, &image, &atlas, 0.0, 64.0);
+    // spawn_single_apple(&mut commands, &image, &atlas, 0.0, 64.0);
 
     commands.insert_resource(AnimationTimer(Timer::from_seconds(0.5, TimerMode::Repeating)));
 }
