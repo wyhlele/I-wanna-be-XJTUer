@@ -3,8 +3,8 @@ use bevy::prelude::*;
 // const BEGINX: f32 = -256.0;
 // const BEGINY: f32 = -64.0;
 
-const BEGINX: f32 = -384.0;
-const BEGINY: f32 = 960.0;
+const BEGINX: f32 = -1152.0;
+const BEGINY: f32 = 704.0;
 
 #[derive(Resource, Debug, Default)]
 pub struct KidSaver{
@@ -26,6 +26,6 @@ fn create_saver(
 ){
     *kid_saver = KidSaver{
         position: Vec2::new(BEGINX, BEGINY),
-        save_id: 0
+        save_id: 1
     };
 }

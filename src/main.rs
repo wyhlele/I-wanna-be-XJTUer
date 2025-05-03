@@ -22,6 +22,7 @@ use base::toucher::ToucherPlugin;
 use camera::CameraPlugin;
 use festival::level1::Fest1Plugin;
 use festival::level2::Fest2Plugin;
+use festival::level3::Fest3Plugin;
 use festival::leaf::LeafPlugin;
 use kid_saver::KidSaverPlugin;
 use menu::startpage::StartPagePlugin;
@@ -64,6 +65,7 @@ fn main() {
         .add_plugins(StartPagePlugin)
         .add_plugins(Fest1Plugin)
         .add_plugins(Fest2Plugin)
+        .add_plugins(Fest3Plugin)
         .add_plugins(ToucherPlugin)
         .add_plugins(LeafPlugin)
         .add_plugins(RapierPhysicsPlugin::<NoUserData>::pixels_per_meter(100.0))

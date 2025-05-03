@@ -2,6 +2,7 @@ use bevy_rapier2d::prelude::*;
 use bevy::prelude::*;
 
 use bevy::sprite::Sprite;
+use crate::asset_loader::MusicAssets;
 use crate::base::kid::Kid;
 use crate::state::{GameState, NeedReload};
 
@@ -75,6 +76,7 @@ fn do_touch(
     kid_query: Query<&Kid>,
     leaf_query: Query<&Leaf>,
     mut leaf_num: ResMut<LeafNum>,
+    music_assets: Res<MusicAssets>,
 ){
     for collision_event in collision_events.read() {
         match collision_event {
@@ -87,11 +89,13 @@ fn do_touch(
                     leaf_num.num += leaf_query.get(*entity_a).unwrap().score;
                     if leaf_num.num > 0{
                         commands.entity(*entity_a).despawn_recursive();
+                        commands.spawn(AudioPlayer::new(music_assets.coin.clone()));
                     }
                 }else if is_entity1_a && is_entity2_b{
                     leaf_num.num += leaf_query.get(*entity_b).unwrap().score;
                     if leaf_num.num > 0{
                         commands.entity(*entity_b).despawn_recursive();
+                        commands.spawn(AudioPlayer::new(music_assets.coin.clone()));
                     }
                 }
             }

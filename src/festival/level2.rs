@@ -1,7 +1,7 @@
 use bevy::prelude::*;
 use bevy_rapier2d::prelude::*;
 use bevy::sprite::{TextureAtlas, TextureAtlasLayout,Sprite};
-use crate::asset_loader::{ImageAssets,SceneAssets,BackGroundAssets};
+use crate::asset_loader::{BackGroundAssets, ImageAssets, MusicAssets, SceneAssets};
 use crate::base::ground::spawn_single_box;
 use crate::base::hidden::spawn_single_hidden;
 use crate::base::kid::Kid;
@@ -24,7 +24,7 @@ impl Plugin for Fest2Plugin{
     fn build(&self, app: &mut App){
         app.add_systems(PostStartup,spawn_once)
         .add_systems(OnExit(GameState::Reload),spawn_reload)
-        .add_systems(Update,(do_trap1,do_trap2,do_trap3,do_trap4));
+        .add_systems(Update,(do_trap1,do_trap2,do_bike,do_trap4));
     }
 }
 
@@ -47,7 +47,7 @@ struct Trap1;
 struct Trap2;
 
 #[derive(Component, Debug)]
-struct Trap3;
+pub struct Bike;
 
 #[derive(Component, Debug)]
 struct Trap4;
@@ -133,7 +133,7 @@ fn spawn_once(
         index : 0,
     };
     let sv_image = image_assets.save.clone();
-    spawn_single_savepointer(&mut commands,&sv_image,&sv_atlas,-12.,-8.,BASEX,BASEY,1);
+    spawn_single_savepointer(&mut commands,&sv_image,&sv_atlas,-11.,-8.,BASEX,BASEY,2);
 
 
     commands.spawn(Collider::cuboid(16.0, 96.0))
@@ -150,8 +150,8 @@ fn spawn_once(
         )
     );
 
-    commands.spawn(Collider::cuboid(32.0, 32.0))
-    .insert(Transform::from_xyz(BASEX+16.,BASEY+240., 0.0))
+    commands.spawn(Collider::cuboid(16.0, 32.0))
+    .insert(Transform::from_xyz(BASEX,BASEY+240., 0.0))
     .insert(Trig2)
     .insert(
         CollisionGroups::new(
@@ -191,7 +191,6 @@ fn spawn_once(
         Group::NONE,
         )
     );
-
 
 
     let wr_layout = TextureAtlasLayout::from_grid(UVec2::new(32, 32), 4, 1, None, None);
@@ -259,9 +258,8 @@ fn spawn_reload(
     .insert(Move{
         goal_pos: Vec2::new(BASEX+64.,BASEY-192.),
         linear_speed: 0.,
-        goal_angle: 0.,
-        angle_speed: 0.,
         status: 0,
+        ..Default::default()
     }).insert(NeedReload);
 
 
@@ -289,9 +287,8 @@ fn spawn_reload(
     ).insert(Move{
         goal_pos: Vec2::new(BASEX+16.,BASEY+224.),
         linear_speed: 0.,
-        goal_angle: 0.,
-        angle_speed: 0.,
         status: 0,
+        ..Default::default()
     }).insert(NeedReload);
 
 
@@ -300,7 +297,7 @@ fn spawn_reload(
             image: image_assets.bike.clone(),
             ..Default::default()
         },
-    ).insert(Trap3)
+    ).insert(Bike)
     .insert(Trap)
     .insert(
         Transform{
@@ -325,9 +322,8 @@ fn spawn_reload(
     ).insert(Move{
         goal_pos: Vec2::new(BASEX-272.,BASEY+160.),
         linear_speed: 0.,
-        goal_angle: 0.,
-        angle_speed: 0.,
         status: 0,
+        ..Default::default()
     }).insert(NeedReload);
 
 
@@ -346,7 +342,7 @@ fn spawn_reload(
         },
     ).insert(Trap4)
     .insert(Trap)
-    .insert(Transform::from_xyz(BASEX+375., BASEY+220., 0.1))
+    .insert(Transform::from_xyz(BASEX+375., BASEY+222., 0.1))
     .insert(NeedReload);
 
 
@@ -356,9 +352,8 @@ fn spawn_reload(
     .insert(Move{
         goal_pos: Vec2::new(BASEX+256.,BASEY+256.),
         linear_speed: 0.,
-        goal_angle: 0.,
-        angle_speed: 0.,
         status: 0,
+        ..Default::default()
     }).insert(NeedReload);
 
     let t52 = spawn_single_spike(&mut commands, &image_assets.spike, 4., 7., BASEX, BASEY, 0.0);
@@ -367,18 +362,19 @@ fn spawn_reload(
     .insert(Move{
         goal_pos: Vec2::new(BASEX+256.,BASEY+224.),
         linear_speed: 0.,
-        goal_angle: 0.,
-        angle_speed: 0.,
         status: 0,
+        ..Default::default()
     }).insert(NeedReload);
 }
 
 
 fn do_trap1(
+    mut commands: Commands,
     mut collision_events: EventReader<CollisionEvent>,
     kid_query: Query<&Kid>,
     trig1_query: Query<&Trig1>,
     mut trap1_query: Query<&mut Move,With<Trap1>>,
+    music_assets: Res<MusicAssets>,
 ){
     for collision_event in collision_events.read() {
         match collision_event {
@@ -396,9 +392,12 @@ fn do_trap1(
                         trap1.goal_pos = Vec2::new(BASEX+64.,BASEY+224.);
                         trap1.linear_speed = 500.;
                         trap1.status = 1;
-                    }else{
+                        commands.spawn(AudioPlayer::new(music_assets.trap.clone()));
+                    }else if trap1.status==1{
                         trap1.goal_pos = Vec2::new(BASEX+64.,BASEY-192.);
                         trap1.linear_speed = 100.;
+                        trap1.status = 2;
+                        commands.spawn(AudioPlayer::new(music_assets.trap.clone()));
                     }
                 }
             }
@@ -408,10 +407,12 @@ fn do_trap1(
 }
 
 fn do_trap2(
+    mut commands: Commands,
     mut collision_events: EventReader<CollisionEvent>,
     kid_query: Query<&Kid>,
     trig2_query: Query<&Trig2>,
     mut trap2_query: Query<&mut Move,With<Trap2>>,
+    music_assets: Res<MusicAssets>,
 ){
     for collision_event in collision_events.read() {
         match collision_event {
@@ -426,6 +427,7 @@ fn do_trap2(
                 };
                 if is_entity1_b && is_entity2_a || is_entity1_a && is_entity2_b{
                     trap2.linear_speed = 2000.;
+                    commands.spawn(AudioPlayer::new(music_assets.trap.clone()));
                 }
             }
             _ => {}
@@ -433,13 +435,15 @@ fn do_trap2(
     }
 }
 
-fn do_trap3(
+fn do_bike(
+    mut commands: Commands,
     mut collision_events: EventReader<CollisionEvent>,
     kid_query: Query<&Kid>,
     trig3_query: Query<&Trig3>,
-    mut trap3_query: Query<&mut Move,(With<Trap3>,Without<Trap5>)>,
+    mut bike_query: Query<&mut Move,(With<Bike>,Without<Trap5>)>,
     leaf_num: Res<LeafNum>,
-    mut trig5_query: Query<&mut Move,(With<Trap5>,Without<Trap3>)>,
+    mut trig5_query: Query<&mut Move,(With<Trap5>,Without<Bike>)>,
+    music_assets: Res<MusicAssets>,
 ){
     for collision_event in collision_events.read() {
         match collision_event {
@@ -448,15 +452,25 @@ fn do_trap3(
                 let is_entity2_a = trig3_query.get(*entity_a).is_ok();
                 let is_entity1_a = kid_query.get(*entity_a).is_ok();
                 let is_entity2_b = trig3_query.get(*entity_b).is_ok();
-                let Ok(mut trap3) = trap3_query.get_single_mut()
+                let Ok(mut bike) = bike_query.get_single_mut()
                 else{
                     continue;
                 };
                 if is_entity1_b && is_entity2_a || is_entity1_a && is_entity2_b{
-                    trap3.linear_speed = 200.;
+                    if bike.linear_speed <200.{
+                        bike.linear_speed = 200.;
+                        commands.spawn(AudioPlayer::new(music_assets.trap.clone()));
+                    }
                     if leaf_num.num==3 {
+                        let mut flag = false;
                         for mut item in trig5_query.iter_mut(){
+                            if item.linear_speed < 100.{
+                                flag = true;
+                            }
                             item.linear_speed = 100.;
+                        }
+                        if flag{
+                            commands.spawn(AudioPlayer::new(music_assets.bike1.clone()));
                         }
                     }
                 }
@@ -467,10 +481,12 @@ fn do_trap3(
 }
 
 fn do_trap4(
+    mut commands: Commands,
     mut collision_events: EventReader<CollisionEvent>,
     kid_query: Query<&Kid>,
     trig4_query: Query<&Trig4>,
     mut trap4_query: Query<&mut Sprite,With<Trap4>>,
+    music_assets: Res<MusicAssets>,
 ){
     for collision_event in collision_events.read() {
         match collision_event {
@@ -485,7 +501,10 @@ fn do_trap4(
                 };
                 if is_entity1_b && is_entity2_a || is_entity1_a && is_entity2_b{
                     if let Some(atlas) = &mut trap4.texture_atlas{
-                        atlas.index = 1;
+                        if atlas.index == 0{
+                            atlas.index = 1;
+                            commands.spawn(AudioPlayer::new(music_assets.bell.clone()));
+                        }
                     }
                 }
             }

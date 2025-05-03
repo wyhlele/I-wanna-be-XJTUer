@@ -5,7 +5,9 @@ const BASEX: f32 = 0.0;
 const BASEY: f32 = 0.0;
 
 use crate::asset_loader::{BackGroundAssets, ImageAssets, SceneAssets};
-use crate::base::{ground::spawn_single_box, wrap::spawn_single_warp};
+use crate::base::ground::spawn_single_box;
+use crate::base::wrap::spawn_single_warp;
+use crate::state::BGMReload;
 
 pub struct StartPagePlugin;
 impl Plugin for StartPagePlugin{
@@ -61,6 +63,7 @@ fn spawn_menu(
         layout : wp_atlas_layout,
         index : 0,
     };
-    spawn_single_warp(&mut commands,&image_assets.warp,&wp_atlas,BASEX+256.0,BASEY-128.0, 480.0,416.0);
+    let warp = spawn_single_warp(&mut commands,&image_assets.warp,&wp_atlas,BASEX+256.0,BASEY-128.0, 480.0,416.0);
+    commands.entity(warp).insert(BGMReload{id:1});
 
 }

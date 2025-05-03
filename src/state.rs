@@ -1,4 +1,7 @@
 use bevy::prelude::*;
+use bevy_rapier2d::prelude::*;
+use bevy::audio::{PlaybackMode, Volume};
+use crate::{asset_loader::MusicAssets, base::kid::Kid, kid_saver::KidSaver};
 
 #[derive(Debug, Default, States, Hash, Clone, Copy, Eq, PartialEq)]
 pub enum GameState {
@@ -12,6 +15,13 @@ pub enum GameState {
 #[derive(Component, Debug, Default)]
 pub struct NeedReload;
 
+#[derive(Component, Debug, Default)]
+pub struct BGM;
+
+#[derive(Component, Debug, Default)]
+pub struct BGMReload{
+    pub id: i8
+}
 pub struct StatePlugin;
 
 impl Plugin for StatePlugin {
@@ -19,7 +29,9 @@ impl Plugin for StatePlugin {
         app.init_state::<GameState>()
         .insert_resource(State::new(GameState::Reload))
         .add_systems(Update, game_state_input_events)
-        .add_systems(Update, reload_game);
+        .add_systems(Update, reload_game)
+        .add_systems(Update, reload_bgm)
+        .add_systems(OnEnter(GameState::InGame), play_bgm);
     }
 }
 
@@ -51,5 +63,89 @@ fn reload_game(
             commands.entity(entity).despawn_recursive();
         }
         next_state.set(GameState::InGame);
+    }
+}
+
+fn play_bgm(
+    mut commands: Commands,
+    kid_saver: Res<KidSaver>,
+    music_assets: Res<MusicAssets>,
+){
+    let mut music = music_assets.gate.clone();
+    if 1<=kid_saver.save_id && kid_saver.save_id <= 3{
+        music = music_assets.festival.clone();
+    }
+    commands.spawn(AudioPlayer::new(music))
+    .insert(PlaybackSettings {
+        mode: PlaybackMode::Loop,
+        volume: Volume::new(0.3),
+        speed: 1.0,
+        paused: false,
+        spatial: false,
+        spatial_scale: None,
+    })
+    .insert(NeedReload)
+    .insert(BGM);
+}
+
+fn reload_bgm(
+    mut commands: Commands,
+    mut collision_events: EventReader<CollisionEvent>,
+    kid_query: Query<&Kid>,
+    reload_query: Query<&BGMReload>,
+    bgm_query: Query<Entity,With<BGM>>,
+    music_assets: Res<MusicAssets>,
+){
+    for collision_event in collision_events.read() {
+        match collision_event {
+            CollisionEvent::Started(entity_a, entity_b, _) => {
+                let is_entity1_b = kid_query.get(*entity_b).is_ok();
+                let is_entity2_a = reload_query.get(*entity_a).is_ok();
+                let is_entity1_a = kid_query.get(*entity_a).is_ok();
+                let is_entity2_b = reload_query.get(*entity_b).is_ok();
+                if is_entity1_b && is_entity2_a{
+                    let id = reload_query.get(*entity_a).unwrap().id;
+                    for bgm in bgm_query.iter(){
+                        commands.entity(bgm).despawn_recursive();
+                    }
+                    let mut music = music_assets.gate.clone();
+                    if 1<=id && id<=3{
+                        music = music_assets.festival.clone();
+                    }
+                    commands.spawn(AudioPlayer::new(music))
+                    .insert(PlaybackSettings {
+                        mode: PlaybackMode::Loop,
+                        volume: Volume::new(0.3),
+                        speed: 1.0,
+                        paused: false,
+                        spatial: false,
+                        spatial_scale: None,
+                    })
+                    .insert(NeedReload)
+                    .insert(BGM);
+                }else if is_entity1_a && is_entity2_b{
+                    let id = reload_query.get(*entity_b).unwrap().id;
+                    for bgm in bgm_query.iter(){
+                        commands.entity(bgm).despawn_recursive();
+                    }
+                    let mut music = music_assets.gate.clone();
+                    if 1<=id && id<=3{
+                        music = music_assets.festival.clone();
+                    }
+                    commands.spawn(AudioPlayer::new(music))
+                    .insert(PlaybackSettings {
+                        mode: PlaybackMode::Loop,
+                        volume: Volume::new(0.3),
+                        speed: 1.0,
+                        paused: false,
+                        spatial: false,
+                        spatial_scale: None,
+                    })
+                    .insert(NeedReload)
+                    .insert(BGM);
+                }
+            }
+            _ => {}
+        }
     }
 }

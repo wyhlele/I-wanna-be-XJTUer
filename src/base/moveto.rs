@@ -8,7 +8,7 @@ const TO_RAD :f32 = 3.1415926 / 180.0;
 
 pub struct MovePlugin;
 
-#[derive(Component, Default)]
+#[derive(Component)]
 pub struct Move{
     pub goal_pos: Vec2,
     pub linear_speed: f32,
@@ -17,10 +17,21 @@ pub struct Move{
     pub status: i8,
 }
 
+impl Default for Move{
+    fn default() -> Self {
+        Move {
+            goal_pos: Vec2::ZERO,
+            linear_speed: 0.,
+            goal_angle: 0.,
+            angle_speed: 0.,
+            status: 0,
+        }
+    }
+}
+
 impl Plugin for MovePlugin{
     fn build(&self, app: &mut App){
         app.add_systems(Update, update_move.in_set(InGameSet::CalcAutoMove));
-
     }
 }
 
@@ -36,10 +47,10 @@ fn update_move(
             velocity.linvel = (config.goal_pos - Vec2::new(x,y)).normalize_or_zero() * config.linear_speed;
         }
         let w = trans.rotation;
-        if (w - Quat::from_rotation_z(config.goal_angle * TO_RAD)).length() <= EPSILON{
-            velocity.angvel = config.angle_speed;
-        }else{
+        if (w - Quat::from_rotation_z(config.goal_angle * TO_RAD)).length() <= EPSILON*0.01{
             velocity.angvel = 0.0;
+        }else{
+            velocity.angvel = config.angle_speed;
         }
     }
 }

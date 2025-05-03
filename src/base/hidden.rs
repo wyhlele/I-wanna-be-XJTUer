@@ -4,6 +4,7 @@ use bevy::prelude::*;
 
 use bevy::sprite::{TextureAtlas,Sprite};
 
+use crate::asset_loader::MusicAssets;
 use crate::base::kid::Kid;
 use crate::state::NeedReload;
 
@@ -60,6 +61,7 @@ fn update_hidden(
     mut collision_events: EventReader<CollisionEvent>,
     kid_query: Query<&Kid>,
     hidden_query: Query<&HiddenWall>,
+    music_assets: Res<MusicAssets>,
 ){
     for collision_event in collision_events.read() {
         match collision_event {
@@ -75,6 +77,7 @@ fn update_hidden(
                         texture_atlas: Some(hidden.atlas.clone()),
                         ..Default::default()
                     });
+                    commands.spawn(AudioPlayer::new(music_assets.trap.clone()));
                 }else if is_entity1_a && is_entity2_b{
                     let hidden = hidden_query.get(*entity_b).unwrap();
                     commands.entity(*entity_b).insert(Sprite{
@@ -82,6 +85,7 @@ fn update_hidden(
                         texture_atlas: Some(hidden.atlas.clone()),
                         ..Default::default()
                     });
+                    commands.spawn(AudioPlayer::new(music_assets.trap.clone()));
                 }
             }
             _ => {}

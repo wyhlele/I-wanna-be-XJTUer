@@ -1,12 +1,14 @@
+use bevy::audio::{PlaybackMode, Volume};
 use bevy::prelude::*;
 use bevy_rapier2d::prelude::*;
 use bevy::input::ButtonInput;
 use bevy::sprite::{TextureAtlas, TextureAtlasLayout,Sprite};
 
-use crate::asset_loader::ImageAssets;
+use crate::asset_loader::{ImageAssets, MusicAssets};
+use crate::festival::level2::Bike;
 use crate::kid_saver::KidSaver;
 use crate::schedule::InGameSet;
-use crate::state::{GameState, NeedReload};
+use crate::state::{GameState, NeedReload, BGM};
 use crate::base::trap::Trap;
 
 const MOVE_SPEED: f32 = 150.0;
@@ -18,6 +20,7 @@ const JUMP_SCALE: f32 = 50.0;
 pub struct Kid{
     pub state:i32,
     pub jump_time:i32,
+    pub dead: i32
 }
 
 #[derive(Resource)]
@@ -29,6 +32,7 @@ impl Plugin for KidPlugin{
     fn build(&self, app: &mut App){
         app.add_systems(PostStartup, spawn_timer)
             .add_systems(OnExit(GameState::Reload), spawn_kid)
+            .add_systems(OnEnter(GameState::GameOver), do_dead)
             .add_systems(
                 Update,
                 (
@@ -64,7 +68,7 @@ pub fn spawn_single_kid(
             texture_atlas: Some(atlas.clone()),
             ..Default::default()
         },
-        Kid{state: 0,jump_time: 2},
+        Kid{state: 0,jump_time: 2, dead: 0},
     )).insert(
         Transform::from_xyz(x,y,0.0)
     ).insert(
@@ -119,7 +123,7 @@ fn spawn_kid(
             texture_atlas: Some(atlas.clone()),
             ..Default::default()
         },
-        Kid{state: 0,jump_time: 2},
+        Kid{state: 0,jump_time: 2,dead: 0},
     )).insert(
         Transform::from_xyz(kid_saver.position.x,kid_saver.position.y,0.0)
     ).insert(
@@ -178,8 +182,10 @@ fn kid_movement_controls(
 
 
 fn kid_jump_controls(
+    mut commands: Commands,
     mut query: Query<(&mut Velocity, &mut Kid),With<Kid>>,
     keyboard_input:Res<ButtonInput<KeyCode>>,
+    music_assets: Res<MusicAssets>,
 ) {
     let Ok((mut velocity, mut kid)) = query.get_single_mut() 
     else {
@@ -189,9 +195,11 @@ fn kid_jump_controls(
         if kid.jump_time == 2{
             velocity.linvel.y = JUMP_SCALE * JUMP_FIRST;
             kid.jump_time = 1;
+            commands.spawn(AudioPlayer::new(music_assets.jump1.clone()));
         }else if kid.jump_time == 1 {
             velocity.linvel.y = JUMP_SCALE * JUMP_SECOND;
             kid.jump_time = 0;
+            commands.spawn(AudioPlayer::new(music_assets.jump2.clone()));
         }
     }
     if keyboard_input.just_released(KeyCode::ShiftLeft) || keyboard_input.just_released(KeyCode::ShiftRight) {
@@ -252,15 +260,17 @@ fn kid_display_events(
     mut next_state: ResMut<NextState<GameState>>,
     state: Res<State<GameState>>,
     mut collision_events: EventReader<CollisionEvent>,
-    kid_query: Query<&Kid>,
+    mut kid_query: Query<&mut Kid>,
     trap_query: Query<&Trap>,
     transforms: Query<&Transform>,
+    bike_query: Query<&Bike>,
 ) {
     for collision_event in collision_events.read() {
         match collision_event {
             CollisionEvent::Started(entity_a, entity_b, _) => {
                 let is_entity1_b = kid_query.get(*entity_b).is_ok();
                 let is_entity2_a = trap_query.get(*entity_a).is_ok();
+                let is_bike1 = bike_query.get(*entity_a).is_ok();
                 if is_entity1_b && is_entity2_a{
                     commands.entity(*entity_b).remove::<LockedAxes>();
 
@@ -275,6 +285,15 @@ fn kid_display_events(
                         transform_a.translation.truncate(), 
                         transform_b.translation.truncate()
                     ));
+                    if is_bike1{
+                        for mut item in kid_query.iter_mut(){
+                            item.dead = 1;
+                        }
+                    }else{
+                        for mut item in kid_query.iter_mut(){
+                            item.dead = 0;
+                        }
+                    }
                     match state.get() {
                         GameState::InGame => next_state.set(GameState::GameOver),
                         _ => {},
@@ -284,6 +303,7 @@ fn kid_display_events(
 
                 let is_entity1_a = kid_query.get(*entity_a).is_ok();
                 let is_entity2_b = trap_query.get(*entity_b).is_ok();
+                let is_bike2 = bike_query.get(*entity_b).is_ok();
                 if is_entity1_a && is_entity2_b{
                     commands.entity(*entity_a).remove::<LockedAxes>();
 
@@ -298,6 +318,15 @@ fn kid_display_events(
                         transform_b.translation.truncate(), 
                         transform_a.translation.truncate()
                     ));
+                    if is_bike2{
+                        for mut item in kid_query.iter_mut(){
+                            item.dead = 1;
+                        }
+                    }else{
+                        for mut item in kid_query.iter_mut(){
+                            item.dead = 0;
+                        }
+                    }
                     match state.get() {
                         GameState::InGame => next_state.set(GameState::GameOver),
                         _ => {},
@@ -306,5 +335,33 @@ fn kid_display_events(
             }
             _ => {}
         }
+    }
+}
+
+fn do_dead(
+    mut commands: Commands,
+    bgm_query: Query<Entity,With<BGM>>,
+    kid_query: Query<&Kid>,
+    music_assets: Res<MusicAssets>,
+){
+    let kid = kid_query.single().dead;
+    let mut bgm = music_assets.dead.clone();
+    let mut vol= 0.3;
+    if kid == 1{
+        bgm = music_assets.bike2.clone();
+        vol = 1.0;
+    }
+    commands.spawn(AudioPlayer::new(bgm))
+    .insert(PlaybackSettings {
+        mode: PlaybackMode::Once,
+        volume: Volume::new(vol),
+        speed: 1.0,
+        paused: false,
+        spatial: false,
+        spatial_scale: None,
+    })
+    .insert(NeedReload);
+    for bgm in bgm_query.iter(){
+        commands.entity(bgm).despawn_recursive();
     }
 }

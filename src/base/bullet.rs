@@ -3,7 +3,7 @@ use bevy_rapier2d::prelude::*;
 
 use bevy::sprite::Sprite;
 
-use crate::asset_loader::ImageAssets;
+use crate::asset_loader::{ImageAssets, MusicAssets};
 use crate::base::kid::Kid;
 use crate::schedule::InGameSet;
 use crate::state::NeedReload;
@@ -27,6 +27,7 @@ fn spawn_bullet(
     query: Query<(&mut Transform,&mut Kid),With<Kid>>,
     image_assets: Res<ImageAssets>,
     keyboard_input:Res<ButtonInput<KeyCode>>,
+    music_assets: Res<MusicAssets>,
 ){
     if keyboard_input.just_pressed(KeyCode::KeyZ){
         let Ok((transform,kid)) = query.get_single()
@@ -71,6 +72,7 @@ fn spawn_bullet(
             )
         ).insert(ActiveEvents::COLLISION_EVENTS)
         .insert(NeedReload);
+        commands.spawn(AudioPlayer::new(music_assets.shoot.clone()));
     }
 }
 

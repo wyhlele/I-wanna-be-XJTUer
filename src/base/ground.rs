@@ -26,5 +26,6 @@ pub fn spawn_single_box(
     ).insert(SolverGroups::new(
         Group::GROUP_2,
         Group::GROUP_1,
-    ));
+    )).insert(Friction::coefficient(0.0))
+    .insert(Restitution::coefficient(0.0));
 }

@@ -1,7 +1,7 @@
 use bevy::prelude::*;
 use bevy_rapier2d::prelude::*;
 use bevy::sprite::{TextureAtlas, TextureAtlasLayout,Sprite};
-use crate::asset_loader::{ImageAssets,SceneAssets,BackGroundAssets};
+use crate::asset_loader::{BackGroundAssets, ImageAssets, MusicAssets, SceneAssets};
 use crate::base::ground::spawn_single_box;
 use crate::base::hidden::spawn_single_hidden;
 use crate::base::kid::Kid;
@@ -316,6 +316,7 @@ fn do_trap3(
     mut trap2_query: Query<Entity,With<Trap2>>,
     trap3_query: Query<Entity,With<Trap3>>,
     leaf_num: Res<LeafNum>,
+    music_assets: Res<MusicAssets>,
 ){
     for collision_event in collision_events.read() {
         match collision_event {
@@ -333,10 +334,10 @@ fn do_trap3(
                         commands.entity(trap3).insert(Move{
                             goal_pos: Vec2::new(BASEX+278., BASEY-64.),
                             linear_speed: 1000.,
-                            goal_angle: 0.,
-                            angle_speed: 0.,
                             status: 0,
+                            ..Default::default()
                         });
+                        commands.spawn(AudioPlayer::new(music_assets.trap.clone()));
                     }else if leaf_num.num == 2{
                         for item in trap2_query.iter_mut(){
                             commands.entity(item).despawn_recursive();
