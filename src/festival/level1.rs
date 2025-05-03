@@ -7,13 +7,13 @@ use crate::base::hidden::spawn_single_hidden;
 use crate::base::kid::Kid;
 use crate::base::moveto::Move;
 use crate::base::savepointer::spawn_single_savepointer;
-use crate::base::spike::spawn_single_spike;
+use crate::base::spike::spawn_single_spike_fixed;
 use crate::base::toucher::spawn_single_toucher;
-use crate::base::trap::{self, Trap};
+use crate::base::trap::Trap;
 use crate::base::wrap::spawn_single_warp;
 use crate::state::{GameState, NeedReload};
 
-use super::leaf::{spawn_single_leaf, LeafNum};
+use super::leaf::{spawn_single_leaf, Leaf, LeafNum};
 
 const BASEX: f32 = 800.0;
 const BASEY: f32 = 608.0;
@@ -89,9 +89,9 @@ fn spawn_once(
     spawn_single_box(&mut commands,1.,6.5,BASEX,BASEY,11.5,3.);
     spawn_single_box(&mut commands,13.,-0.,BASEX,BASEY,0.5,9.5);
 
-    spawn_single_spike(&mut commands, &image_assets.spike, -5., -1., BASEX,BASEY,0.0);
-    spawn_single_spike(&mut commands, &image_assets.spike, -6., -1., BASEX,BASEY,0.0);
-    spawn_single_spike(&mut commands, &image_assets.spike, -12., -8., BASEX,BASEY,0.0);
+    spawn_single_spike_fixed(&mut commands, &image_assets.spike, -5., -1., BASEX,BASEY,0.0);
+    spawn_single_spike_fixed(&mut commands, &image_assets.spike, -6., -1., BASEX,BASEY,0.0);
+    spawn_single_spike_fixed(&mut commands, &image_assets.spike, -12., -8., BASEX,BASEY,0.0);
 
     let sv_layout = TextureAtlasLayout::from_grid(UVec2::new(32, 32), 2, 1, None, None);
     let sv_atlas_layout = texture_atlases.add(sv_layout);
@@ -100,7 +100,7 @@ fn spawn_once(
         index : 0,
     };
     let sv_image = image_assets.save.clone();
-    spawn_single_savepointer(&mut commands,&sv_image,&sv_atlas,-10.,-8.,BASEX,BASEY,1);
+    spawn_single_savepointer(&mut commands,&sv_image,&sv_atlas,-9.,-8.,BASEX,BASEY,1);
 
     let wr_layout = TextureAtlasLayout::from_grid(UVec2::new(32, 32), 4, 1, None, None);
     let wr_atlas_layout = texture_atlases.add(wr_layout);
@@ -155,7 +155,8 @@ fn spawn_once(
         )
     );
 
-    spawn_single_warp(&mut commands,&wr_image,&wr_atlas,BASEX+384.,BASEY+32.,0.,0.);
+    let warp = spawn_single_warp(&mut commands,&wr_image,&wr_atlas,BASEX+384.,BASEY+32.,-384.,960.);
+    commands.entity(warp).insert(Leaf{score: -2});
 }
 
 fn spawn_reload(

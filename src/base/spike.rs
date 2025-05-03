@@ -37,6 +37,8 @@ pub fn spawn_single_spike(
             Vec2::new(-16.0, -16.0),Vec2::new(16.0, -16.0),Vec2::new(0.0, 16.0)
         )
     ).insert(
+        ColliderMassProperties::Mass(10000.0)
+    ).insert(
         CollisionGroups::new(
             Group::GROUP_3,
             Group::GROUP_1|Group::GROUP_4,
@@ -48,4 +50,39 @@ pub fn spawn_single_spike(
     ).id()
 }
 
-
+pub fn spawn_single_spike_fixed(
+    commands: &mut Commands,
+    sprtie: &Handle<Image>,
+    x: f32,y: f32,
+    bx: f32, by: f32,
+    angle: f32,
+) -> Entity{
+    commands.spawn((
+        Sprite{
+            image: sprtie.clone(),
+            ..Default::default()
+        },
+        Trap,
+    )).insert(
+        Transform{
+            translation: Vec3::new(x*32.+bx,y*32.+by,-0.3),
+            rotation: Quat::from_rotation_z(angle * TO_RAD),
+            ..default()
+        }
+    ).insert(
+        RigidBody::Fixed
+    ).insert(
+        Collider::triangle(
+            Vec2::new(-16.0, -16.0),Vec2::new(16.0, -16.0),Vec2::new(0.0, 16.0)
+        )
+    ).insert(
+        CollisionGroups::new(
+            Group::GROUP_3,
+            Group::GROUP_1|Group::GROUP_4,
+        )
+    ).insert(SolverGroups::new(
+        Group::GROUP_3,
+        Group::GROUP_1,
+        )
+    ).id()
+}

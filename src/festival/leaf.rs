@@ -8,12 +8,12 @@ use crate::state::{GameState, NeedReload};
 
 #[derive(Resource, Debug, Default)]
 pub struct LeafNum{
-    pub num: u8,
+    pub num: i8,
 }
 
 #[derive(Component, Debug)]
 pub struct Leaf{
-    pub score: u8,
+    pub score: i8,
 }
 pub struct LeafPlugin;
 
@@ -36,7 +36,7 @@ pub fn spawn_single_leaf(
     sprtie: &Handle<Image>,
     x: f32,y: f32,
     bx: f32, by:f32,
-    score: u8,
+    score: i8,
 )->Entity{
     commands.spawn((
         Sprite{
@@ -85,10 +85,14 @@ fn do_touch(
                 let is_entity2_b = leaf_query.get(*entity_b).is_ok();
                 if is_entity1_b && is_entity2_a{
                     leaf_num.num += leaf_query.get(*entity_a).unwrap().score;
-                    commands.entity(*entity_a).despawn_recursive();
+                    if leaf_num.num > 0{
+                        commands.entity(*entity_a).despawn_recursive();
+                    }
                 }else if is_entity1_a && is_entity2_b{
                     leaf_num.num += leaf_query.get(*entity_b).unwrap().score;
-                    commands.entity(*entity_b).despawn_recursive();
+                    if leaf_num.num > 0{
+                        commands.entity(*entity_b).despawn_recursive();
+                    }
                 }
             }
             _ => {}

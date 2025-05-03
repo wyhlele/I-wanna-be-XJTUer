@@ -21,6 +21,7 @@ use base::bullet::BulletPlugin;
 use base::toucher::ToucherPlugin;
 use camera::CameraPlugin;
 use festival::level1::Fest1Plugin;
+use festival::level2::Fest2Plugin;
 use festival::leaf::LeafPlugin;
 use kid_saver::KidSaverPlugin;
 use menu::startpage::StartPagePlugin;
@@ -37,8 +38,12 @@ fn main() {
                 primary_window: Some(Window {
                     title: "I Wanna Be XJTUer".into(),
                     resolution: (800., 608.).into(),
-                    resizable: true,
+                    resizable: false,
                     decorations: true,
+                    enabled_buttons: bevy::window::EnabledButtons{
+                        maximize: false,
+                        ..Default::default()
+                    },
                     ..default()
                 }),
                 ..default()
@@ -58,6 +63,7 @@ fn main() {
         .add_plugins(WarpPlugin)
         .add_plugins(StartPagePlugin)
         .add_plugins(Fest1Plugin)
+        .add_plugins(Fest2Plugin)
         .add_plugins(ToucherPlugin)
         .add_plugins(LeafPlugin)
         .add_plugins(RapierPhysicsPlugin::<NoUserData>::pixels_per_meter(100.0))
