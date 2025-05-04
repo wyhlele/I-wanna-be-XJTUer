@@ -6,6 +6,7 @@ mod kid_saver;
 mod menu;
 mod schedule;
 mod state;
+mod museum;
 
 use bevy::prelude::*;
 use bevy_rapier2d::prelude::*;
@@ -26,6 +27,12 @@ use festival::level3::Fest3Plugin;
 use festival::leaf::LeafPlugin;
 use kid_saver::KidSaverPlugin;
 use menu::startpage::StartPagePlugin;
+use menu::endpage::EndPagePlugin;
+use museum::quiz1::Quiz1Plugin;
+use museum::quiz2::Quiz2Plugin;
+use museum::quiz3::Quiz3Plugin;
+use museum::quiz4::Quiz4Plugin;
+use museum::quiz5::Quiz5Plugin;
 use schedule::SchedulePlugin;
 use state::StatePlugin;
 
@@ -50,24 +57,30 @@ fn main() {
                 ..default()
             })
         )
-        .add_plugins(KidPlugin)
-        .add_plugins(CameraPlugin)
-        .add_plugins(SchedulePlugin)
-        .add_plugins(StatePlugin)
         .add_plugins(AssetLoaderPlugin)
+        .add_plugins(CameraPlugin)
+        .add_plugins(BulletPlugin)
+        .add_plugins(KidPlugin)
         .add_plugins(KidSaverPlugin)
         .add_plugins(SavePointerPlugin)
-        .add_plugins(BulletPlugin)
+        .add_plugins(SchedulePlugin)
+        .add_plugins(StatePlugin)
         .add_plugins(ApplePlugin)
-        .add_plugins(MovePlugin)
         .add_plugins(HiddenPlugin)
+        .add_plugins(MovePlugin)
+        .add_plugins(ToucherPlugin)
         .add_plugins(WarpPlugin)
         .add_plugins(StartPagePlugin)
+        .add_plugins(EndPagePlugin)
+        .add_plugins(LeafPlugin)
         .add_plugins(Fest1Plugin)
         .add_plugins(Fest2Plugin)
         .add_plugins(Fest3Plugin)
-        .add_plugins(ToucherPlugin)
-        .add_plugins(LeafPlugin)
+        .add_plugins(Quiz1Plugin)
+        .add_plugins(Quiz2Plugin)
+        .add_plugins(Quiz3Plugin)
+        .add_plugins(Quiz4Plugin)
+        .add_plugins(Quiz5Plugin)
         .add_plugins(RapierPhysicsPlugin::<NoUserData>::pixels_per_meter(100.0))
         // .add_plugins(RapierDebugRenderPlugin::default())
         .run();

@@ -26,12 +26,21 @@ pub struct SceneAssets{
     pub festival2: Handle<Image>,
     pub festival3: Handle<Image>,
     pub f2_timer: Handle<Image>,
+    pub hint: Handle<Image>,
+    pub museum: Handle<Image>,
+    pub quiz_title: Handle<Image>,
+    pub sjtu: Handle<Image>,
+    pub thanks: Handle<Image>,
+    pub title: Handle<Image>,
+    pub world: Handle<Image>,
+    pub xjtu: Handle<Image>,
     pub yellow: Handle<Image>,
 }
 
 #[derive(Resource, Default)]
 pub struct BackGroundAssets{
     pub gate: Handle<Image>,
+    pub museum: Handle<Image>,
     pub street: Handle<Image>,
 }
 
@@ -47,8 +56,38 @@ pub struct MusicAssets{
     pub gate: Handle<AudioSource>,
     pub jump1: Handle<AudioSource>,
     pub jump2: Handle<AudioSource>,
+    pub museum: Handle<AudioSource>,
     pub shoot: Handle<AudioSource>,
     pub trap: Handle<AudioSource>,
+}
+
+
+#[derive(Resource, Default)]
+pub struct QuizAssets{
+    pub a1: Handle<Image>,
+    pub a2: Handle<Image>,
+    pub a3: Handle<Image>,
+    pub a4: Handle<Image>,
+    pub a5: Handle<Image>,
+    pub b1: Handle<Image>,
+    pub b2: Handle<Image>,
+    pub b3: Handle<Image>,
+    pub b4: Handle<Image>,
+    pub b5: Handle<Image>,
+    pub c1: Handle<Image>,
+    pub c2: Handle<Image>,
+    pub c3: Handle<Image>,
+    pub c4: Handle<Image>,
+    pub c5: Handle<Image>,
+    pub h1: Handle<Image>,
+    pub h2: Handle<Image>,
+    pub h3: Handle<Image>,
+    pub h5: Handle<Image>,
+    pub q1: Handle<Image>,
+    pub q2: Handle<Image>,
+    pub q3: Handle<Image>,
+    pub q4: Handle<Image>,
+    pub q5: Handle<Image>,
 }
 
 pub struct AssetLoaderPlugin;
@@ -59,6 +98,7 @@ impl Plugin for AssetLoaderPlugin{
             .init_resource::<SceneAssets>()
             .init_resource::<BackGroundAssets>()
             .init_resource::<MusicAssets>()
+            .init_resource::<QuizAssets>()
             .add_systems(Startup,load_assets);
     }
 }
@@ -68,6 +108,7 @@ fn load_assets(
     mut scene_assets: ResMut<SceneAssets>, 
     mut background_assets: ResMut<BackGroundAssets>, 
     mut music_assets: ResMut<MusicAssets>, 
+    mut quiz_assets: ResMut<QuizAssets>, 
     asset_server: Res<AssetServer>,
     mut next_state: ResMut<NextState<GameState>>,
 ){
@@ -94,11 +135,20 @@ fn load_assets(
         festival2: asset_server.load("scene/festival2.png"),
         festival3: asset_server.load("scene/festival3.png"),
         f2_timer: asset_server.load("scene/17_59_18_00.png"),
+        hint: asset_server.load("scene/hint.png"),
+        museum: asset_server.load("scene/quiz.png"),
+        sjtu: asset_server.load("scene/sjtu.png"),
+        title: asset_server.load("scene/title.png"),
+        thanks: asset_server.load("scene/thanks.png"),
+        quiz_title: asset_server.load("scene/quiz_title.png"),
+        world: asset_server.load("scene/world.png"),
+        xjtu: asset_server.load("scene/xjtu.png"),
         yellow: asset_server.load("scene/yellow.png"),
     };
 
     *background_assets = BackGroundAssets{
-        gate: asset_server.load("background/gate2.png"),
+        gate: asset_server.load("background/gate.png"),
+        museum: asset_server.load("background/museum.png"),
         street: asset_server.load("background/street.png"),
     };
 
@@ -113,8 +163,36 @@ fn load_assets(
         gate: asset_server.load("music/gatebgm.ogg"),
         jump1: asset_server.load("music/jump1.ogg"),
         jump2: asset_server.load("music/jump2.ogg"),
+        museum: asset_server.load("music/museumbgm.ogg"),
         shoot: asset_server.load("music/shoot.ogg"),
         trap: asset_server.load("music/trap.ogg"),
+    };
+
+    *quiz_assets = QuizAssets{
+        a1: asset_server.load("scene/1A.png"),
+        a2: asset_server.load("scene/2A.png"),
+        a3: asset_server.load("scene/3A.png"),
+        a4: asset_server.load("scene/4A.png"),
+        a5: asset_server.load("scene/5A.png"),
+        b1: asset_server.load("scene/1B.png"),
+        b2: asset_server.load("scene/2B.png"),
+        b3: asset_server.load("scene/3B.png"),
+        b4: asset_server.load("scene/4B.png"),
+        b5: asset_server.load("scene/5B.png"),
+        c1: asset_server.load("scene/1C.png"),
+        c2: asset_server.load("scene/2C.png"),
+        c3: asset_server.load("scene/3C.png"),
+        c4: asset_server.load("scene/4C.png"),
+        c5: asset_server.load("scene/5C.png"),
+        h1: asset_server.load("scene/1H.png"),
+        h2: asset_server.load("scene/2H.png"),
+        h3: asset_server.load("scene/3H.png"),
+        h5: asset_server.load("scene/5H.png"),
+        q1: asset_server.load("scene/1Q.png"),
+        q2: asset_server.load("scene/2Q.png"),
+        q3: asset_server.load("scene/3Q.png"),
+        q4: asset_server.load("scene/4Q.png"),
+        q5: asset_server.load("scene/5Q.png"),
     };
 
     next_state.set(GameState::InGame);

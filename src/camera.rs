@@ -2,10 +2,11 @@ use bevy::prelude::*;
 
 use crate::asset_loader::ImageAssets;
 use crate::base::kid::Kid;
+use crate::kid_saver::KidSaver;
 use crate::schedule::InGameSet;
 use crate::state::GameState;
 
-#[derive(Component,Debug,Default)]
+#[derive(Component, Default)]
 pub struct GameOver;
 
 pub struct CameraPlugin;
@@ -43,11 +44,15 @@ fn gameover_text_spawn(
     mut commands: Commands,
     camera_query: Query<&mut Transform,With<Camera2d>>,
     image_assets: Res<ImageAssets>,
+    kid_saver: Res<KidSaver>,
 ){
     let Ok(camera) = camera_query.get_single()
     else{
         return;
     };
+    if 3<kid_saver.save_id && kid_saver.save_id<=8{
+        return;
+    }
     commands.spawn((
         Sprite{
             image: image_assets.gameover.clone(),

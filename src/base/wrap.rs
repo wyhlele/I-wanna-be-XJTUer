@@ -7,10 +7,15 @@ use crate::asset_loader::ImageAssets;
 use crate::base::kid::{Kid,spawn_single_kid};
 use crate::schedule::InGameSet;
 
+use super::trap::Trap;
+
 #[derive(Component, Debug, Default)]
 pub struct Warp{
     position: Vec2,
 }
+
+#[derive(Component, Debug, Default)]
+pub struct FakeWarp;
 
 pub struct WarpPlugin;
 
@@ -41,6 +46,41 @@ pub fn spawn_single_warp(
         Warp{
             position: Vec2::new(tox, toy)
         },
+    )).insert(
+        Transform::from_xyz(x,y,-0.2)
+    ).insert(
+        RigidBody::Dynamic
+    ).insert(
+        Collider::cuboid(12.0,13.0)
+    ).insert(
+        GravityScale(0.0)
+    ).insert(
+        CollisionGroups::new(
+            Group::GROUP_4,
+            Group::GROUP_1|Group::GROUP_4,
+        )
+    ).insert(SolverGroups::new(
+        Group::GROUP_4,
+        Group::NONE,
+        )
+    ).id()
+}
+
+
+pub fn spawn_fake_warp(
+    commands: &mut Commands,
+    sprtie: &Handle<Image>,
+    atlas: &TextureAtlas,
+    x: f32, y: f32,
+)-> Entity{
+    commands.spawn((
+        Sprite{
+            image: sprtie.clone(),
+            texture_atlas:Some(atlas.clone()),
+            ..Default::default()
+        },
+        FakeWarp,
+        Trap,
     )).insert(
         Transform::from_xyz(x,y,-0.2)
     ).insert(
@@ -109,13 +149,19 @@ fn do_trans(
 
 
 fn update_warp(
-    mut query: Query<&mut Sprite,With<Warp>>,
+    mut query: Query<&mut Sprite,(With<Warp>,Without<FakeWarp>)>,
+    mut query1: Query<&mut Sprite,(With<FakeWarp>,Without<Warp>)>,
     time: Res<Time>,
     mut timer: ResMut<AnimationTimer>,
 ){
     timer.0.tick(time.delta());
     if timer.0.finished() {
         for mut sprite in query.iter_mut(){
+            if let Some(atlas) = &mut sprite.texture_atlas{
+                atlas.index = (atlas.index + 1) % 4;
+            }
+        }
+        for mut sprite in query1.iter_mut(){
             if let Some(atlas) = &mut sprite.texture_atlas{
                 atlas.index = (atlas.index + 1) % 4;
             }

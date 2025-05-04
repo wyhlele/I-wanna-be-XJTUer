@@ -7,7 +7,6 @@ use crate::{asset_loader::MusicAssets, base::kid::Kid, kid_saver::KidSaver};
 pub enum GameState {
     #[default]
     InGame,
-    Paused,
     Reload,
     GameOver,
 }
@@ -28,24 +27,9 @@ impl Plugin for StatePlugin {
     fn build(&self, app: &mut App) {
         app.init_state::<GameState>()
         .insert_resource(State::new(GameState::Reload))
-        .add_systems(Update, game_state_input_events)
         .add_systems(Update, reload_game)
         .add_systems(Update, reload_bgm)
         .add_systems(OnEnter(GameState::InGame), play_bgm);
-    }
-}
-
-pub fn game_state_input_events(
-    mut next_state: ResMut<NextState<GameState>>,
-    state: Res<State<GameState>>,
-    keyboard_input:Res<ButtonInput<KeyCode>>,
-){
-    if keyboard_input.just_pressed(KeyCode::KeyP){
-        match state.get() {
-            GameState::InGame => next_state.set(GameState::Paused),
-            GameState::Paused => next_state.set(GameState::InGame),
-            _ => ()
-        }
     }
 }
 
@@ -74,7 +58,9 @@ fn cnt_bgm(
         music_assets.gate.clone()
     }else if id<=3{
         music_assets.festival.clone()
-    }else if id<= 8{
+    }else if id<=8{
+        music_assets.museum.clone()
+    }else if id<=14{
         music_assets.building.clone()
     }else{
         music_assets.dead.clone()

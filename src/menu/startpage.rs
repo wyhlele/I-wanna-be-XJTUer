@@ -31,7 +31,35 @@ fn spawn_menu(
     ).insert(
         Transform::from_xyz(BASEX, BASEY, -0.5)
     );
+
+    commands.spawn(
+        Sprite{
+            image: scene_assets.title.clone(),
+            ..Default::default()
+        }
+    ).insert(
+        Transform::from_xyz(BASEX, BASEY+192., -0.4)
+    );
+
+    commands.spawn(
+        Sprite{
+            image: scene_assets.hint.clone(),
+            ..Default::default()
+        }
+    ).insert(
+        Transform::from_xyz(BASEX, BASEY, -0.4)
+    );
+
+    commands.spawn(
+        Sprite{
+            image: scene_assets.world.clone(),
+            ..Default::default()
+        }
+    ).insert(
+        Transform::from_xyz(BASEX, BASEY+608., -0.4)
+    );
     
+    spawn_single_box(&mut commands,0.,10.,BASEX,BASEY,12.5,0.5);
     spawn_single_box(&mut commands,0.,-9.,BASEX,BASEY,12.5,0.5);
     spawn_single_box(&mut commands,-13.,-0.,BASEX,BASEY,0.5,9.5);
     spawn_single_box(&mut commands,13.,-0.,BASEX,BASEY,0.5,9.5);
