@@ -11,6 +11,7 @@ use crate::base::spike::spawn_single_spike_fixed;
 use crate::base::toucher::spawn_single_toucher;
 use crate::base::trap::Trap;
 use crate::base::wrap::spawn_single_warp;
+use crate::schedule::InGameSet;
 use crate::state::{GameState, NeedReload};
 
 use super::leaf::{spawn_single_leaf, Leaf, LeafNum};
@@ -24,7 +25,7 @@ impl Plugin for Fest1Plugin{
     fn build(&self, app: &mut App){
         app.add_systems(PostStartup,spawn_once)
         .add_systems(OnExit(GameState::Reload),spawn_reload)
-        .add_systems(Update,(do_trap1,do_trap2,do_trap3));
+        .add_systems(Update,(do_trig1,do_trig2,do_trig3).in_set(InGameSet::EntityUpdates));
     }
 }
 
@@ -32,7 +33,9 @@ impl Plugin for Fest1Plugin{
 struct Trig1;
 
 #[derive(Component, Debug)]
-struct Trig2;
+struct Trig2{
+    state: i8
+}
 
 #[derive(Component, Debug)]
 struct Trig3;
@@ -129,7 +132,7 @@ fn spawn_once(
 
     commands.spawn(Collider::cuboid(32.0, 32.0))
     .insert(Transform::from_xyz(BASEX+16.,BASEY-240., 0.0))
-    .insert(Trig2)
+    .insert(Trig2{state:0})
     .insert(
         CollisionGroups::new(
             Group::GROUP_4,
@@ -246,7 +249,7 @@ fn spawn_reload(
     ).insert(NeedReload);
 }
 
-fn do_trap1(
+fn do_trig1(
     mut commands: Commands,
     mut collision_events: EventReader<CollisionEvent>,
     kid_query: Query<&Kid>,
@@ -273,11 +276,11 @@ fn do_trap1(
     }
 }
 
-fn do_trap2(
+fn do_trig2(
     mut commands: Commands,
     mut collision_events: EventReader<CollisionEvent>,
     kid_query: Query<&Kid>,
-    trig2_query: Query<&Trig2>,
+    mut trig2_query: Query<&mut Trig2>,
     scene_assets: Res<SceneAssets>,
     mut texture_atlases: ResMut<Assets<TextureAtlasLayout>>,
 ){
@@ -295,12 +298,16 @@ fn do_trap2(
                 let is_entity2_a = trig2_query.get(*entity_a).is_ok();
                 let is_entity1_a = kid_query.get(*entity_a).is_ok();
                 let is_entity2_b = trig2_query.get(*entity_b).is_ok();
-                if is_entity1_b && is_entity2_a{
-                    spawn_single_hidden(&mut commands, &ori_image, &ori_atlas, 3., -8., BASEX, BASEY);
-                    spawn_single_hidden(&mut commands, &ori_image, &ori_atlas, 3., -7., BASEX, BASEY);
-                }else if is_entity1_a && is_entity2_b{
-                    spawn_single_hidden(&mut commands, &ori_image, &ori_atlas, 3., -8., BASEX, BASEY);
-                    spawn_single_hidden(&mut commands, &ori_image, &ori_atlas, 3., -7., BASEX, BASEY);
+                if is_entity1_b && is_entity2_a || is_entity1_a && is_entity2_b{
+                    let Ok(mut trig2) = trig2_query.get_single_mut()
+                    else{
+                        continue;
+                    };
+                    if trig2.state==0{
+                        trig2.state = 1;
+                        spawn_single_hidden(&mut commands, &ori_image, &ori_atlas, 3., -8., BASEX, BASEY);
+                        spawn_single_hidden(&mut commands, &ori_image, &ori_atlas, 3., -7., BASEX, BASEY);
+                    }
                 }
             }
             _ => {}
@@ -308,7 +315,7 @@ fn do_trap2(
     }
 }
 
-fn do_trap3(
+fn do_trig3(
     mut commands: Commands,
     mut collision_events: EventReader<CollisionEvent>,
     kid_query: Query<&Kid>,
@@ -337,7 +344,7 @@ fn do_trap3(
                             status: 0,
                             ..Default::default()
                         });
-                        commands.spawn(AudioPlayer::new(music_assets.trap.clone()));
+                        commands.spawn(AudioPlayer::new(music_assets.trap.clone())).insert(NeedReload);
                     }else if leaf_num.num == 2{
                         for item in trap2_query.iter_mut(){
                             commands.entity(item).despawn_recursive();

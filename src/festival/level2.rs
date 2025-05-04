@@ -11,6 +11,7 @@ use crate::base::spike::{spawn_single_spike,spawn_single_spike_fixed};
 use crate::base::toucher::spawn_single_toucher;
 use crate::base::trap::Trap;
 use crate::base::wrap::spawn_single_warp;
+use crate::schedule::InGameSet;
 use crate::state::{GameState, NeedReload};
 
 use super::leaf::{spawn_single_leaf, Leaf, LeafNum};
@@ -24,7 +25,7 @@ impl Plugin for Fest2Plugin{
     fn build(&self, app: &mut App){
         app.add_systems(PostStartup,spawn_once)
         .add_systems(OnExit(GameState::Reload),spawn_reload)
-        .add_systems(Update,(do_trap1,do_trap2,do_bike,do_trap4));
+        .add_systems(Update,(do_trig1,do_trig2,do_trig3,do_trig4).in_set(InGameSet::EntityUpdates));
     }
 }
 
@@ -201,7 +202,7 @@ fn spawn_once(
     };
     let wr_image = image_assets.warp.clone();
 
-    let warp = spawn_single_warp(&mut commands,&wr_image,&wr_atlas,BASEX+96.,BASEY+224.,0.,0.);
+    let warp = spawn_single_warp(&mut commands,&wr_image,&wr_atlas,BASEX+96.,BASEY+224.,-1152.,704.);
     commands.entity(warp).insert(Leaf{score:-3}); 
 }
 
@@ -368,7 +369,7 @@ fn spawn_reload(
 }
 
 
-fn do_trap1(
+fn do_trig1(
     mut commands: Commands,
     mut collision_events: EventReader<CollisionEvent>,
     kid_query: Query<&Kid>,
@@ -392,12 +393,12 @@ fn do_trap1(
                         trap1.goal_pos = Vec2::new(BASEX+64.,BASEY+224.);
                         trap1.linear_speed = 500.;
                         trap1.status = 1;
-                        commands.spawn(AudioPlayer::new(music_assets.trap.clone()));
+                        commands.spawn(AudioPlayer::new(music_assets.trap.clone())).insert(NeedReload);
                     }else if trap1.status==1{
                         trap1.goal_pos = Vec2::new(BASEX+64.,BASEY-192.);
                         trap1.linear_speed = 100.;
                         trap1.status = 2;
-                        commands.spawn(AudioPlayer::new(music_assets.trap.clone()));
+                        commands.spawn(AudioPlayer::new(music_assets.trap.clone())).insert(NeedReload);
                     }
                 }
             }
@@ -406,7 +407,7 @@ fn do_trap1(
     }
 }
 
-fn do_trap2(
+fn do_trig2(
     mut commands: Commands,
     mut collision_events: EventReader<CollisionEvent>,
     kid_query: Query<&Kid>,
@@ -427,7 +428,7 @@ fn do_trap2(
                 };
                 if is_entity1_b && is_entity2_a || is_entity1_a && is_entity2_b{
                     trap2.linear_speed = 2000.;
-                    commands.spawn(AudioPlayer::new(music_assets.trap.clone()));
+                    commands.spawn(AudioPlayer::new(music_assets.trap.clone())).insert(NeedReload);
                 }
             }
             _ => {}
@@ -435,7 +436,7 @@ fn do_trap2(
     }
 }
 
-fn do_bike(
+fn do_trig3(
     mut commands: Commands,
     mut collision_events: EventReader<CollisionEvent>,
     kid_query: Query<&Kid>,
@@ -459,7 +460,7 @@ fn do_bike(
                 if is_entity1_b && is_entity2_a || is_entity1_a && is_entity2_b{
                     if bike.linear_speed <200.{
                         bike.linear_speed = 200.;
-                        commands.spawn(AudioPlayer::new(music_assets.trap.clone()));
+                        commands.spawn(AudioPlayer::new(music_assets.bike1.clone())).insert(NeedReload);
                     }
                     if leaf_num.num==3 {
                         let mut flag = false;
@@ -470,7 +471,7 @@ fn do_bike(
                             item.linear_speed = 100.;
                         }
                         if flag{
-                            commands.spawn(AudioPlayer::new(music_assets.bike1.clone()));
+                            commands.spawn(AudioPlayer::new(music_assets.bike1.clone())).insert(NeedReload);
                         }
                     }
                 }
@@ -480,7 +481,7 @@ fn do_bike(
     }
 }
 
-fn do_trap4(
+fn do_trig4(
     mut commands: Commands,
     mut collision_events: EventReader<CollisionEvent>,
     kid_query: Query<&Kid>,
@@ -503,7 +504,7 @@ fn do_trap4(
                     if let Some(atlas) = &mut trap4.texture_atlas{
                         if atlas.index == 0{
                             atlas.index = 1;
-                            commands.spawn(AudioPlayer::new(music_assets.bell.clone()));
+                            commands.spawn(AudioPlayer::new(music_assets.bell.clone())).insert(NeedReload);
                         }
                     }
                 }

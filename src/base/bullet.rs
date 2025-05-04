@@ -72,7 +72,7 @@ fn spawn_bullet(
             )
         ).insert(ActiveEvents::COLLISION_EVENTS)
         .insert(NeedReload);
-        commands.spawn(AudioPlayer::new(music_assets.shoot.clone()));
+        commands.spawn(AudioPlayer::new(music_assets.shoot.clone())).insert(NeedReload);
     }
 }
 

@@ -66,16 +66,29 @@ fn reload_game(
     }
 }
 
+fn cnt_bgm(
+    id: i8,
+    music_assets: &Res<MusicAssets>,
+)->Handle<AudioSource>{
+    if id <=0{
+        music_assets.gate.clone()
+    }else if id<=3{
+        music_assets.festival.clone()
+    }else if id<= 8{
+        music_assets.building.clone()
+    }else{
+        music_assets.dead.clone()
+    }
+}
+
 fn play_bgm(
     mut commands: Commands,
     kid_saver: Res<KidSaver>,
     music_assets: Res<MusicAssets>,
 ){
-    let mut music = music_assets.gate.clone();
-    if 1<=kid_saver.save_id && kid_saver.save_id <= 3{
-        music = music_assets.festival.clone();
-    }
-    commands.spawn(AudioPlayer::new(music))
+    commands.spawn(
+        AudioPlayer::new(cnt_bgm(kid_saver.save_id, &music_assets))
+    )
     .insert(PlaybackSettings {
         mode: PlaybackMode::Loop,
         volume: Volume::new(0.3),
@@ -108,12 +121,9 @@ fn reload_bgm(
                     for bgm in bgm_query.iter(){
                         commands.entity(bgm).despawn_recursive();
                     }
-                    let mut music = music_assets.gate.clone();
-                    if 1<=id && id<=3{
-                        music = music_assets.festival.clone();
-                    }
-                    commands.spawn(AudioPlayer::new(music))
-                    .insert(PlaybackSettings {
+                    commands.spawn(
+                        AudioPlayer::new(cnt_bgm(id, &music_assets))
+                    ).insert(PlaybackSettings {
                         mode: PlaybackMode::Loop,
                         volume: Volume::new(0.3),
                         speed: 1.0,

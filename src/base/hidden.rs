@@ -14,6 +14,7 @@ pub struct HiddenPlugin;
 struct HiddenWall{
     image: Handle<Image>,
     atlas: TextureAtlas,
+    used: bool,
 }
 
 impl Plugin for HiddenPlugin{
@@ -52,6 +53,7 @@ pub fn spawn_single_hidden(
     ).insert(HiddenWall{
         image: image.clone(),
         atlas: atlas.clone(),
+        used: false,
     })
     .insert(NeedReload).id()
 }
@@ -60,7 +62,7 @@ fn update_hidden(
     mut commands: Commands,
     mut collision_events: EventReader<CollisionEvent>,
     kid_query: Query<&Kid>,
-    hidden_query: Query<&HiddenWall>,
+    mut hidden_query: Query<&mut HiddenWall>,
     music_assets: Res<MusicAssets>,
 ){
     for collision_event in collision_events.read() {
@@ -71,21 +73,33 @@ fn update_hidden(
                 let is_entity1_a = kid_query.get(*entity_a).is_ok();
                 let is_entity2_b = hidden_query.get(*entity_b).is_ok();
                 if is_entity1_b && is_entity2_a{
-                    let hidden = hidden_query.get(*entity_a).unwrap();
-                    commands.entity(*entity_a).insert(Sprite{
-                        image: hidden.image.clone(),
-                        texture_atlas: Some(hidden.atlas.clone()),
-                        ..Default::default()
-                    });
-                    commands.spawn(AudioPlayer::new(music_assets.trap.clone()));
+                    let Ok(mut hidden) = hidden_query.get_mut(*entity_a)
+                    else{
+                        continue;
+                    };
+                    if hidden.used == false{
+                        commands.entity(*entity_a).insert(Sprite{
+                            image: hidden.image.clone(),
+                            texture_atlas: Some(hidden.atlas.clone()),
+                            ..Default::default()
+                        });
+                        commands.spawn(AudioPlayer::new(music_assets.trap.clone())).insert(NeedReload);
+                        hidden.used = true;
+                    }
                 }else if is_entity1_a && is_entity2_b{
-                    let hidden = hidden_query.get(*entity_b).unwrap();
-                    commands.entity(*entity_b).insert(Sprite{
-                        image: hidden.image.clone(),
-                        texture_atlas: Some(hidden.atlas.clone()),
-                        ..Default::default()
-                    });
-                    commands.spawn(AudioPlayer::new(music_assets.trap.clone()));
+                    let Ok(mut hidden) = hidden_query.get_mut(*entity_b)
+                    else{
+                        continue;
+                    };
+                    if hidden.used == false{
+                        commands.entity(*entity_b).insert(Sprite{
+                            image: hidden.image.clone(),
+                            texture_atlas: Some(hidden.atlas.clone()),
+                            ..Default::default()
+                        });
+                        commands.spawn(AudioPlayer::new(music_assets.trap.clone())).insert(NeedReload);
+                        hidden.used = true;
+                    }
                 }
             }
             _ => {}

@@ -48,7 +48,7 @@ pub fn spawn_single_leaf(
             score: score
         }
     )).insert(
-        RigidBody::Fixed
+        RigidBody::Dynamic
     ).insert(
         GravityScale(0.0)
     ).insert(
@@ -69,6 +69,38 @@ pub fn spawn_single_leaf(
     ).insert(NeedReload).id()
 }
 
+pub fn spawn_fake_leaf(
+    commands: &mut Commands,
+    sprtie: &Handle<Image>,
+    x: f32,y: f32,
+    bx: f32, by:f32,
+)->Entity{
+    commands.spawn(
+        Sprite{
+            image: sprtie.clone(),
+            ..Default::default()
+        }
+    ).insert(
+        RigidBody::Dynamic
+    ).insert(
+        GravityScale(0.0)
+    ).insert(
+        Transform::from_xyz(bx+x*32.,by+y*32.,-0.2)
+    ).insert(
+        Collider::cuboid(10.0, 10.0)
+    ).insert(
+        LockedAxes::ROTATION_LOCKED
+    ).insert(
+        CollisionGroups::new(
+            Group::GROUP_4,
+            Group::GROUP_1|Group::GROUP_4,
+        )
+    ).insert(SolverGroups::new(
+        Group::GROUP_4,
+        Group::NONE,
+        )
+    ).insert(NeedReload).id()
+}
 
 fn do_touch(
     mut commands: Commands,
@@ -89,13 +121,13 @@ fn do_touch(
                     leaf_num.num += leaf_query.get(*entity_a).unwrap().score;
                     if leaf_num.num > 0{
                         commands.entity(*entity_a).despawn_recursive();
-                        commands.spawn(AudioPlayer::new(music_assets.coin.clone()));
+                        commands.spawn(AudioPlayer::new(music_assets.coin.clone())).insert(NeedReload);
                     }
                 }else if is_entity1_a && is_entity2_b{
                     leaf_num.num += leaf_query.get(*entity_b).unwrap().score;
                     if leaf_num.num > 0{
                         commands.entity(*entity_b).despawn_recursive();
-                        commands.spawn(AudioPlayer::new(music_assets.coin.clone()));
+                        commands.spawn(AudioPlayer::new(music_assets.coin.clone())).insert(NeedReload);
                     }
                 }
             }

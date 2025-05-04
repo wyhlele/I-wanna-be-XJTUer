@@ -9,7 +9,7 @@ use crate::schedule::InGameSet;
 
 #[derive(Component, Debug, Default)]
 pub struct SavePointer{
-    id: u8,
+    id: i8,
     position: Vec2,
 }
 
@@ -27,7 +27,7 @@ pub fn spawn_single_savepointer(
     atlas: &TextureAtlas,
     x: f32,y: f32,
     bx: f32, by:f32,
-    id: u8,
+    id: i8,
 ) -> Entity{
     commands.spawn((
         Sprite{
