@@ -471,7 +471,7 @@ fn do_trig3(
                             item.linear_speed = 100.;
                         }
                         if flag{
-                            commands.spawn(AudioPlayer::new(music_assets.bike1.clone())).insert(NeedReload);
+                            commands.spawn(AudioPlayer::new(music_assets.trap.clone())).insert(NeedReload);
                         }
                     }
                 }

@@ -146,6 +146,8 @@ fn spawn_kid(
     ).insert(
         LockedAxes::ROTATION_LOCKED
     ).insert(
+        Friction::coefficient(0.0)
+    ).insert(
         CollisionGroups::new(
             Group::GROUP_1,
             Group::GROUP_2|Group::GROUP_3|Group::GROUP_4,

@@ -134,7 +134,7 @@ fn spawn_once(
         index : 0,
     };
     let sv_image = image_assets.save.clone();
-    spawn_single_savepointer(&mut commands,&sv_image,&sv_atlas,-10.,3.,BASEX,BASEY,2);
+    spawn_single_savepointer(&mut commands,&sv_image,&sv_atlas,-10.,3.,BASEX,BASEY,3);
 
     commands.spawn(
         Sprite{
@@ -265,7 +265,7 @@ fn spawn_once(
     };
     let wr_image = image_assets.warp.clone();
 
-    let warp = spawn_single_warp(&mut commands,&wr_image,&wr_atlas,BASEX+352.,BASEY-224.,0.,0.);
+    let warp = spawn_single_warp(&mut commands,&wr_image,&wr_atlas,BASEX+352.,BASEY-224.,-1600.,-1216.);
     commands.entity(warp).insert(Leaf{score:-3}).insert(BGMReload{id:4});
 }
 
