@@ -22,16 +22,20 @@ pub struct ImageAssets{
 #[derive(Resource, Default)]
 pub struct SceneAssets{
     pub bg: Handle<Image>,
+    pub building_center: Handle<Image>,
+    pub discription_d: Handle<Image>,
     pub festival1: Handle<Image>,
     pub festival2: Handle<Image>,
     pub festival3: Handle<Image>,
     pub f2_timer: Handle<Image>,
     pub hint: Handle<Image>,
+    pub main_building: Handle<Image>,
     pub museum: Handle<Image>,
     pub quiz_title: Handle<Image>,
     pub sjtu: Handle<Image>,
     pub thanks: Handle<Image>,
     pub title: Handle<Image>,
+    pub unfilled: Handle<Image>,
     pub world: Handle<Image>,
     pub xjtu: Handle<Image>,
     pub yellow: Handle<Image>,
@@ -39,6 +43,8 @@ pub struct SceneAssets{
 
 #[derive(Resource, Default)]
 pub struct BackGroundAssets{
+    pub center: Handle<Image>,
+    pub classroom: Handle<Image>,
     pub gate: Handle<Image>,
     pub museum: Handle<Image>,
     pub street: Handle<Image>,
@@ -90,6 +96,20 @@ pub struct QuizAssets{
     pub q5: Handle<Image>,
 }
 
+#[derive(Resource, Default)]
+pub struct BuildingAssets{
+    pub block0: Handle<Image>,
+    pub block1: Handle<Image>,
+    pub block2: Handle<Image>,
+    pub block3: Handle<Image>,
+    pub block4: Handle<Image>,
+    pub block5: Handle<Image>,
+    pub block6: Handle<Image>,
+    pub block7: Handle<Image>,
+    pub block8: Handle<Image>,
+    pub block9: Handle<Image>,
+}
+
 pub struct AssetLoaderPlugin;
 
 impl Plugin for AssetLoaderPlugin{
@@ -99,6 +119,7 @@ impl Plugin for AssetLoaderPlugin{
             .init_resource::<BackGroundAssets>()
             .init_resource::<MusicAssets>()
             .init_resource::<QuizAssets>()
+            .init_resource::<BuildingAssets>()
             .add_systems(Startup,load_assets);
     }
 }
@@ -109,6 +130,7 @@ fn load_assets(
     mut background_assets: ResMut<BackGroundAssets>, 
     mut music_assets: ResMut<MusicAssets>, 
     mut quiz_assets: ResMut<QuizAssets>, 
+    mut building_assets: ResMut<BuildingAssets>, 
     asset_server: Res<AssetServer>,
     mut next_state: ResMut<NextState<GameState>>,
 ){
@@ -131,22 +153,28 @@ fn load_assets(
 
     *scene_assets = SceneAssets{
         bg: asset_server.load("scene/bg.png"),
+        building_center: asset_server.load("scene/building_center.png"),
+        discription_d: asset_server.load("scene/discription_d.png"),
         festival1: asset_server.load("scene/festival1.png"),
         festival2: asset_server.load("scene/festival2.png"),
         festival3: asset_server.load("scene/festival3.png"),
         f2_timer: asset_server.load("scene/17_59_18_00.png"),
         hint: asset_server.load("scene/hint.png"),
+        main_building: asset_server.load("scene/main_building.png"),
         museum: asset_server.load("scene/quiz.png"),
         sjtu: asset_server.load("scene/sjtu.png"),
         title: asset_server.load("scene/title.png"),
         thanks: asset_server.load("scene/thanks.png"),
         quiz_title: asset_server.load("scene/quiz_title.png"),
+        unfilled: asset_server.load("scene/unfilled.png"),
         world: asset_server.load("scene/world.png"),
         xjtu: asset_server.load("scene/xjtu.png"),
         yellow: asset_server.load("scene/yellow.png"),
     };
 
     *background_assets = BackGroundAssets{
+        center: asset_server.load("background/center.png"),
+        classroom: asset_server.load("background/classroom.png"),
         gate: asset_server.load("background/gate.png"),
         museum: asset_server.load("background/museum.png"),
         street: asset_server.load("background/street.png"),
@@ -193,6 +221,19 @@ fn load_assets(
         q3: asset_server.load("scene/3Q.png"),
         q4: asset_server.load("scene/4Q.png"),
         q5: asset_server.load("scene/5Q.png"),
+    };
+
+    *building_assets = BuildingAssets{
+        block0: asset_server.load("images/block0.png"),
+        block1: asset_server.load("images/block1.png"),
+        block2: asset_server.load("images/block2.png"),
+        block3: asset_server.load("images/block3.png"),
+        block4: asset_server.load("images/block4.png"),
+        block5: asset_server.load("images/block5.png"),
+        block6: asset_server.load("images/block6.png"),
+        block7: asset_server.load("images/block7.png"),
+        block8: asset_server.load("images/block8.png"),
+        block9: asset_server.load("images/block9.png"),
     };
 
     next_state.set(GameState::InGame);

@@ -1,5 +1,6 @@
 mod asset_loader;
 mod base;
+mod building;
 mod camera;
 mod festival;
 mod kid_saver;
@@ -20,6 +21,8 @@ use base::wrap::WarpPlugin;
 use base::savepointer::SavePointerPlugin;
 use base::bullet::BulletPlugin;
 use base::toucher::ToucherPlugin;
+use building::center::CenterPlugin;
+use building::building_d::BuildingDPlugin;
 use camera::CameraPlugin;
 use festival::level1::Fest1Plugin;
 use festival::level2::Fest2Plugin;
@@ -81,8 +84,10 @@ fn main() {
         .add_plugins(Quiz3Plugin)
         .add_plugins(Quiz4Plugin)
         .add_plugins(Quiz5Plugin)
+        .add_plugins(CenterPlugin)
+        .add_plugins(BuildingDPlugin)
         .add_plugins(RapierPhysicsPlugin::<NoUserData>::pixels_per_meter(100.0))
-        // .add_plugins(RapierDebugRenderPlugin::default())
+        .add_plugins(RapierDebugRenderPlugin::default())
         .run();
 }
 

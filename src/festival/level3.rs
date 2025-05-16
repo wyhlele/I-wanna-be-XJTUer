@@ -211,38 +211,6 @@ fn spawn_once(
         )
     );
 
-
-
-    commands.spawn(Collider::cuboid(16.0, 32.0))
-    .insert(Transform::from_xyz(BASEX+320.,BASEY-16., 0.0))
-    .insert(Trig5{state:0})
-    .insert(
-        CollisionGroups::new(
-            Group::GROUP_4,
-            Group::GROUP_1|Group::GROUP_4,
-        )
-    ).insert(SolverGroups::new(
-        Group::GROUP_4,
-        Group::NONE,
-        )
-    );
-
-
-
-    commands.spawn(Collider::cuboid(16.0, 16.0))
-    .insert(Transform::from_xyz(BASEX-96.,BASEY-176., 0.0))
-    .insert(Trig6{state:0})
-    .insert(
-        CollisionGroups::new(
-            Group::GROUP_4,
-            Group::GROUP_1|Group::GROUP_4,
-        )
-    ).insert(SolverGroups::new(
-        Group::GROUP_4,
-        Group::NONE,
-        )
-    );
-
     commands.spawn(Collider::cuboid(16.0, 32.0))
     .insert(Transform::from_xyz(BASEX-16.,BASEY-240., 0.0))
     .insert(Trig8)
@@ -414,6 +382,34 @@ fn spawn_reload(
         Group::NONE,
         )
     );
+
+    commands.spawn(Collider::cuboid(16.0, 32.0))
+    .insert(Transform::from_xyz(BASEX+320.,BASEY-16., 0.0))
+    .insert(Trig5{state:0})
+    .insert(
+        CollisionGroups::new(
+            Group::GROUP_4,
+            Group::GROUP_1|Group::GROUP_4,
+        )
+    ).insert(SolverGroups::new(
+        Group::GROUP_4,
+        Group::NONE,
+        )
+    ).insert(NeedReload);
+
+    commands.spawn(Collider::cuboid(16.0, 16.0))
+    .insert(Transform::from_xyz(BASEX-96.,BASEY-176., 0.0))
+    .insert(Trig6{state:0})
+    .insert(
+        CollisionGroups::new(
+            Group::GROUP_4,
+            Group::GROUP_1|Group::GROUP_4,
+        )
+    ).insert(SolverGroups::new(
+        Group::GROUP_4,
+        Group::NONE,
+        )
+    ).insert(NeedReload);
 
     commands.spawn(Collider::cuboid(16.0, 64.0))
     .insert(Transform::from_xyz(BASEX+64.,BASEY-48., 0.0))

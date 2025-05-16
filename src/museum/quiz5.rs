@@ -6,6 +6,7 @@ use crate::base::ground::spawn_single_box;
 use crate::base::kid::Kid;
 use crate::base::savepointer::spawn_single_savepointer;
 use crate::base::wrap::{spawn_fake_warp, spawn_single_warp};
+use crate::building::center::ClearBuilding;
 use crate::schedule::InGameSet;
 use crate::state::{BGMReload, GameState, NeedReload};
 
@@ -166,11 +167,14 @@ fn spawn_once(
     };
     let wr_image = image_assets.warp.clone();
     
-    let wp1 = spawn_single_warp(&mut commands,&wr_image,&wr_atlas,BASEX-224.,BASEY-256.,-1600.,0.);
+    let wp1 = spawn_single_warp(&mut commands,&wr_image,&wr_atlas,BASEX-224.,BASEY-256.,BASEX,BASEY+608.*4.);
     let wp2 = spawn_fake_warp(&mut commands,&wr_image,&wr_atlas,BASEX,BASEY-256.);
     let wp3 = spawn_fake_warp(&mut commands,&wr_image,&wr_atlas,BASEX+224.,BASEY-256.);
 
-    commands.entity(wp1).insert(Accept).insert(BGMReload{id:9});
+    commands.entity(wp1)
+    .insert(Accept)
+    .insert(BGMReload{id:9})
+    .insert(ClearBuilding);
     commands.entity(wp2).insert(Wrong);
     commands.entity(wp3).insert(Wrong);
 

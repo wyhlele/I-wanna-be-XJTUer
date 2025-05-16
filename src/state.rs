@@ -60,7 +60,7 @@ fn cnt_bgm(
         music_assets.festival.clone()
     }else if id<=8{
         music_assets.museum.clone()
-    }else if id<=14{
+    }else if id<=10{
         music_assets.building.clone()
     }else{
         music_assets.dead.clone()

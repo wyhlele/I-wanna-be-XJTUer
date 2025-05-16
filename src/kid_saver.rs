@@ -1,12 +1,12 @@
 use bevy::prelude::*;
 
-const BEGINX: f32 = -256.0;
-const BEGINY: f32 = -224.0;
+// const BEGINX: f32 = -256.0;
+// const BEGINY: f32 = -224.0;
 
-// const BEGINX: f32 = -1600.0;
-// const BEGINY: f32 = -1216.0;    
+const BEGINX: f32 = 1600.0;
+const BEGINY: f32 = 608.*2.+64.;
 
-const SAVE: i8 = 0;
+const SAVE: i8 = 9;
 
 #[derive(Resource, Debug, Default)]
 pub struct KidSaver{
