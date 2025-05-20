@@ -22,6 +22,8 @@ use base::savepointer::SavePointerPlugin;
 use base::bullet::BulletPlugin;
 use base::toucher::ToucherPlugin;
 use building::center::CenterPlugin;
+use building::building_a::BuildingAPlugin;
+use building::building_c::BuildingCPlugin;
 use building::building_d::BuildingDPlugin;
 use camera::CameraPlugin;
 use festival::level1::Fest1Plugin;
@@ -85,6 +87,8 @@ fn main() {
         .add_plugins(Quiz4Plugin)
         .add_plugins(Quiz5Plugin)
         .add_plugins(CenterPlugin)
+        .add_plugins(BuildingAPlugin)
+        .add_plugins(BuildingCPlugin)
         .add_plugins(BuildingDPlugin)
         .add_plugins(RapierPhysicsPlugin::<NoUserData>::pixels_per_meter(100.0))
         .add_plugins(RapierDebugRenderPlugin::default())

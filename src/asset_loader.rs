@@ -21,8 +21,11 @@ pub struct ImageAssets{
 
 #[derive(Resource, Default)]
 pub struct SceneAssets{
+    pub arrow: Handle<Image>,
     pub bg: Handle<Image>,
     pub building_center: Handle<Image>,
+    pub discription_a: Handle<Image>,
+    pub discription_c: Handle<Image>,
     pub discription_d: Handle<Image>,
     pub festival1: Handle<Image>,
     pub festival2: Handle<Image>,
@@ -31,7 +34,9 @@ pub struct SceneAssets{
     pub hint: Handle<Image>,
     pub main_building: Handle<Image>,
     pub museum: Handle<Image>,
+    pub numbers: Handle<Image>,
     pub quiz_title: Handle<Image>,
+    pub right_eq: Handle<Image>,
     pub sjtu: Handle<Image>,
     pub thanks: Handle<Image>,
     pub title: Handle<Image>,
@@ -108,6 +113,8 @@ pub struct BuildingAssets{
     pub block7: Handle<Image>,
     pub block8: Handle<Image>,
     pub block9: Handle<Image>,
+    pub countmap: Handle<Image>,
+    pub hua: Handle<Image>,
 }
 
 pub struct AssetLoaderPlugin;
@@ -152,8 +159,11 @@ fn load_assets(
     };
 
     *scene_assets = SceneAssets{
+        arrow: asset_server.load("scene/arrow.png"),
         bg: asset_server.load("scene/bg.png"),
         building_center: asset_server.load("scene/building_center.png"),
+        discription_a: asset_server.load("scene/discription_a.png"),
+        discription_c: asset_server.load("scene/discription_c.png"),
         discription_d: asset_server.load("scene/discription_d.png"),
         festival1: asset_server.load("scene/festival1.png"),
         festival2: asset_server.load("scene/festival2.png"),
@@ -162,6 +172,8 @@ fn load_assets(
         hint: asset_server.load("scene/hint.png"),
         main_building: asset_server.load("scene/main_building.png"),
         museum: asset_server.load("scene/quiz.png"),
+        numbers: asset_server.load("scene/numbers.png"),
+        right_eq: asset_server.load("scene/rightEq.png"),
         sjtu: asset_server.load("scene/sjtu.png"),
         title: asset_server.load("scene/title.png"),
         thanks: asset_server.load("scene/thanks.png"),
@@ -234,6 +246,8 @@ fn load_assets(
         block7: asset_server.load("images/block7.png"),
         block8: asset_server.load("images/block8.png"),
         block9: asset_server.load("images/block9.png"),
+        countmap: asset_server.load("images/countmap.png"),
+        hua: asset_server.load("images/hua.png"),
     };
 
     next_state.set(GameState::InGame);
