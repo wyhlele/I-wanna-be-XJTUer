@@ -32,7 +32,7 @@ impl Plugin for BuildingDPlugin{
     fn build(&self,app: &mut App){
         app.init_resource::<BlockChosen>()
         .add_systems(PostStartup,spawn_once)
-        .add_systems(OnExit(GameState::Reload),spawn_reload)
+        .add_systems(OnExit(GameState::ReForBuilding),spawn_reload)
         .add_systems(Update,(do_choose,do_move));
     }
 }
@@ -88,8 +88,13 @@ fn spawn_reload(
     mut commands: Commands,
     building_assets: Res<BuildingAssets>,
     mut choose: ResMut<BlockChosen>,
+    query: Query<Entity,With<Block>>,
 ){
     choose.choose = -1;
+
+    for item in &query{
+        commands.entity(item).despawn_recursive();
+    }
 
     commands.spawn(
         Sprite{

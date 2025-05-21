@@ -3,7 +3,6 @@ use std::collections::HashSet;
 use bevy::prelude::*;
 
 use bevy::sprite::Sprite;
-use bevy::utils::info;
 use crate::asset_loader::{BackGroundAssets, BuildingAssets, ImageAssets, MusicAssets, SceneAssets};
 use crate::base::ground::spawn_single_box;
 use crate::base::wrap::spawn_once_warp;
@@ -33,7 +32,7 @@ impl Plugin for BuildingAPlugin{
     fn build(&self,app: &mut App){
         app.init_resource::<HuaState>()
         .add_systems(PostStartup,spawn_once)
-        .add_systems(OnExit(GameState::Reload),spawn_reload)
+        .add_systems(OnExit(GameState::ReForBuilding),spawn_reload)
         .add_systems(Update,do_move);
     }
 }
@@ -102,9 +101,14 @@ fn spawn_reload(
     mut commands: Commands,
     building_assets: Res<BuildingAssets>,
     mut hua: ResMut<HuaState>,
+    query: Query<Entity,With<Block>>,
     mut texture_atlases: ResMut<Assets<TextureAtlasLayout>>
 ){
     hua.state = true;
+
+    for item in &query{
+        commands.entity(item).despawn_recursive();
+    }
 
     let hua_layout = TextureAtlasLayout::from_grid(UVec2::new(64, 64), 3, 3, None, None);
     let hua_atlas_layout = texture_atlases.add(hua_layout);
@@ -340,7 +344,7 @@ fn do_move(
         now += 1;
     }
     
-    let mut dir = -1;
+    let dir;
     if keyboard_input.just_released(KeyCode::KeyW){
         if now/3==2 {
             return;
@@ -395,7 +399,7 @@ fn do_move(
     let mut b2=0;
 
     for (_, block) in query.iter(){
-        let mut value = -1;
+        let value;
         let pos = 3*block.x+block.y;
         match block.id{
             0 => {value = 6;},
@@ -452,7 +456,7 @@ fn do_move(
         }
     }
 
-    
+    hua.state = false;
     commands.spawn(AudioPlayer::new(music_assets.coin.clone())).insert(NeedReload);
     let wr_layout = TextureAtlasLayout::from_grid(UVec2::new(32, 32), 4, 1, None, None);
     let wr_atlas_layout = texture_atlases.add(wr_layout);

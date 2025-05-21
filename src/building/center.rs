@@ -196,6 +196,7 @@ fn do_change(
     change_query: Query<&ChangeBuilding,Without<Trap1>>,
     trap_query: Query<Entity,(With<Trap1>,Without<ChangeBuilding>)>,
     mut state: ResMut<BuildingState>,
+    mut next_state: ResMut<NextState<GameState>>,
 ){
     for collision_event in collision_events.read() {
         match collision_event {
@@ -212,6 +213,7 @@ fn do_change(
                             commands.entity(item).despawn_recursive();
                         }
                     }
+                    next_state.set(GameState::ReForBuilding);
                 }else if is_entity1_a && is_entity2_b{
                     state.choose = change_query.get(*entity_b).unwrap().to;
                     state.num |= change_query.get(*entity_b).unwrap().delta;
@@ -220,6 +222,7 @@ fn do_change(
                             commands.entity(item).despawn_recursive();
                         }
                     }
+                    next_state.set(GameState::ReForBuilding);
                 }
             }
             _ => {}

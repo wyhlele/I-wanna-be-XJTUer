@@ -9,6 +9,7 @@ pub enum GameState {
     InGame,
     Reload,
     GameOver,
+    ReForBuilding,
 }
 
 #[derive(Component, Debug, Default)]
@@ -27,9 +28,20 @@ impl Plugin for StatePlugin {
     fn build(&self, app: &mut App) {
         app.init_state::<GameState>()
         .insert_resource(State::new(GameState::Reload))
+        .add_systems(Update,exit_on_key_press)
         .add_systems(Update, reload_game)
         .add_systems(Update, reload_bgm)
-        .add_systems(OnEnter(GameState::InGame), play_bgm);
+        .add_systems(OnEnter(GameState::ReForBuilding), reload_for_building)
+        .add_systems(OnExit(GameState::Reload), play_bgm);
+    }
+}
+
+fn exit_on_key_press(
+    keyboard_input:Res<ButtonInput<KeyCode>>,
+    mut app_exit_events: EventWriter<AppExit>,
+) {
+    if keyboard_input.just_pressed(KeyCode::Escape) {
+        app_exit_events.send(AppExit::Success);
     }
 }
 
@@ -48,6 +60,12 @@ fn reload_game(
         }
         next_state.set(GameState::InGame);
     }
+}
+
+fn reload_for_building(
+    mut next_state: ResMut<NextState<GameState>>,
+){
+    next_state.set(GameState::InGame);
 }
 
 fn cnt_bgm(

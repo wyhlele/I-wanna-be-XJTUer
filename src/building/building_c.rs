@@ -27,8 +27,6 @@ pub struct MyPos{
 #[derive(Component, Debug)]
 pub struct Block{
     pub id: usize,
-    pub x: usize,
-    pub y: usize,
 }
 
 #[derive(Component, Debug)]
@@ -40,7 +38,7 @@ impl Plugin for BuildingCPlugin{
     fn build(&self,app: &mut App){
         app.init_resource::<MyPos>()
         .add_systems(PostStartup,spawn_once)
-        .add_systems(OnExit(GameState::Reload),spawn_reload)
+        .add_systems(OnExit(GameState::ReForBuilding),spawn_reload)
         .add_systems(Update,do_move);
     }
 }
@@ -118,6 +116,8 @@ fn spawn_reload(
     mut commands: Commands,
     building_assets: Res<BuildingAssets>,
     scene_assets: Res<SceneAssets>,
+    num_query: Query<Entity,(With<Num>,Without<Block>)>,
+    block_query: Query<Entity,(With<Block>,Without<Num>)>,
     mut mypos: ResMut<MyPos>,
     mut texture_atlases: ResMut<Assets<TextureAtlasLayout>>
 ){
@@ -130,6 +130,12 @@ fn spawn_reload(
     mypos.y = 0;
     mypos.used.insert(20);
 
+    for item in num_query.iter(){
+        commands.entity(item).despawn_recursive();
+    }
+    for item in block_query.iter(){
+        commands.entity(item).despawn_recursive();
+    }
 
     let mp_layout = TextureAtlasLayout::from_grid(UVec2::new(48, 48), 10, 5, None, None);
     let mp_atlas_layout = texture_atlases.add(mp_layout);
@@ -163,8 +169,6 @@ fn spawn_reload(
             ).insert(
                 Block{
                     id: x*5+y,
-                    x: x,
-                    y: y,
                 }
             ).insert(NeedReload);
             y+=1;

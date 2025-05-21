@@ -1,6 +1,7 @@
 use bevy::audio::{PlaybackMode, Volume};
 use bevy::prelude::*;
 use bevy_rapier2d::prelude::*;
+use rand::Rng; 
 use bevy::input::ButtonInput;
 use bevy::sprite::{TextureAtlas, TextureAtlasLayout,Sprite};
 
@@ -164,22 +165,37 @@ fn spawn_kid(
 
 
 fn kid_movement_controls(
-    mut query: Query<(&mut Velocity, &mut Kid),With<Kid>>,
+    mut commands: Commands,
+    mut query: Query<(Entity, &Transform, &mut Velocity, &mut Kid),With<Kid>>,
     keyboard_input:Res<ButtonInput<KeyCode>>,
+    mut next_state: ResMut<NextState<GameState>>,
 ){
-    let Ok((mut velocity, mut kid)) = query.get_single_mut() 
+    let Ok((entity, trans ,mut velocity, mut kid)) = query.get_single_mut() 
     else {
         return;
     };
-    let mut movement = 0.0;
     if keyboard_input.pressed(KeyCode::ArrowLeft){
-        movement = -MOVE_SPEED;
+        velocity.linvel.x = -MOVE_SPEED;
         kid.state = 1;
     }else if keyboard_input.pressed(KeyCode::ArrowRight){
-        movement = MOVE_SPEED;
+        velocity.linvel.x = MOVE_SPEED;
         kid.state = 0;
+    }else if keyboard_input.pressed(KeyCode::KeyQ){
+        next_state.set(GameState::GameOver);
+        let mut rng = rand::thread_rng();
+        let direction = Vec2::new(
+            rng.gen_range(-1.0..=1.0),
+            rng.gen_range(-1.0..=1.0),
+        ).normalize();
+        commands.entity(entity).insert(
+            ExternalImpulse::at_point(
+            direction * 1600.0, 
+            trans.translation.truncate(), 
+            trans.translation.truncate()
+        ));
+    }else{
+        velocity.linvel.x = 0.;
     }
-    velocity.linvel.x = movement;
 }
 
 
