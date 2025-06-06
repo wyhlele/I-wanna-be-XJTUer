@@ -69,7 +69,7 @@ pub fn spawn_single_kid(
             texture_atlas: Some(atlas.clone()),
             ..Default::default()
         },
-        Kid{state: 0,jump_time: 2, dead: 0},
+        Kid{state: 0,jump_time: 1, dead: 0},
     )).insert(
         Transform::from_xyz(x,y,0.0)
     ).insert(
@@ -124,7 +124,7 @@ fn spawn_kid(
             texture_atlas: Some(atlas.clone()),
             ..Default::default()
         },
-        Kid{state: 0,jump_time: 2,dead: 0},
+        Kid{state: 0,jump_time: 1,dead: 0},
     )).insert(
         Transform::from_xyz(kid_saver.position.x,kid_saver.position.y,0.0)
     ).insert(
@@ -225,9 +225,9 @@ fn kid_jump_controls(
             velocity.linvel.y *= 0.45; 
         }
     }
-    if velocity.linvel.y.abs()< 0.5{
+    if velocity.linvel.y.abs()< 0.001{
         kid.jump_time = 2;
-    }else if velocity.linvel.y < -0.5 && kid.jump_time == 2{
+    }else if velocity.linvel.y < -0.001 && kid.jump_time == 2{
         kid.jump_time -= 1;
     }
     if velocity.linvel.y < -9.4 * JUMP_SCALE{

@@ -138,7 +138,7 @@ fn spawn_once(
         }
     );
     
-    spawn_single_warp(&mut commands,&wr_image,&wr_atlas,BASEX,BASEY,BASEX,BASEY-1216.);
+    spawn_single_warp(&mut commands,&wr_image,&wr_atlas,BASEX,BASEY,BASEX-256.,BASEY-1216.-256.);
 
 }
 
@@ -160,8 +160,10 @@ fn spawn_reload(
     };
 
     if state.num != 15{
-        spawn_single_hidden(&mut commands,&ori_image,&ori_atlas,-1.,0.,BASEX,BASEY);
-        spawn_single_hidden(&mut commands,&ori_image,&ori_atlas,1.,0.,BASEX,BASEY);
+        let tmp1 = spawn_single_hidden(&mut commands,&ori_image,&ori_atlas,-1.,0.,BASEX,BASEY);
+        commands.entity(tmp1).insert(Trap1);
+        let tmp2 = spawn_single_hidden(&mut commands,&ori_image,&ori_atlas,1.,0.,BASEX,BASEY);
+        commands.entity(tmp2).insert(Trap1);
     }
 
 }
@@ -194,7 +196,7 @@ fn do_change(
     mut collision_events: EventReader<CollisionEvent>,
     kid_query: Query<&Kid>,
     change_query: Query<&ChangeBuilding,Without<Trap1>>,
-    trap_query: Query<Entity,(With<Trap1>,Without<ChangeBuilding>)>,
+    mut trap_query: Query<Entity,(With<Trap1>,Without<ChangeBuilding>)>,
     mut state: ResMut<BuildingState>,
     mut next_state: ResMut<NextState<GameState>>,
 ){
@@ -209,7 +211,7 @@ fn do_change(
                     state.choose = change_query.get(*entity_a).unwrap().to;
                     state.num |= change_query.get(*entity_a).unwrap().delta;
                     if state.num == 15{
-                        for item in trap_query.iter(){
+                        for item in trap_query.iter_mut(){
                             commands.entity(item).despawn_recursive();
                         }
                     }
@@ -218,7 +220,7 @@ fn do_change(
                     state.choose = change_query.get(*entity_b).unwrap().to;
                     state.num |= change_query.get(*entity_b).unwrap().delta;
                     if state.num == 15{
-                        for item in trap_query.iter(){
+                        for item in trap_query.iter_mut(){
                             commands.entity(item).despawn_recursive();
                         }
                     }

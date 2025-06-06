@@ -7,6 +7,7 @@ pub struct ImageAssets{
     pub apple: Handle<Image>,
     pub bike: Handle<Image>,
     pub bullet: Handle<Image>,
+    pub ferris: Handle<Image>,
     pub fest1_1: Handle<Image>,
     pub fest1_2: Handle<Image>,
     pub f2_up: Handle<Image>,
@@ -22,9 +23,13 @@ pub struct ImageAssets{
 #[derive(Resource, Default)]
 pub struct SceneAssets{
     pub arrow: Handle<Image>,
+    pub boss: Handle<Image>,
     pub bg: Handle<Image>,
+    pub blood: Handle<Image>,
     pub building_center: Handle<Image>,
+    pub building_e: Handle<Image>,
     pub discription_a: Handle<Image>,
+    pub discription_b: Handle<Image>,
     pub discription_c: Handle<Image>,
     pub discription_d: Handle<Image>,
     pub festival1: Handle<Image>,
@@ -51,6 +56,8 @@ pub struct BackGroundAssets{
     pub center: Handle<Image>,
     pub classroom: Handle<Image>,
     pub gate: Handle<Image>,
+    pub inside_e: Handle<Image>,
+    pub library: Handle<Image>,
     pub museum: Handle<Image>,
     pub street: Handle<Image>,
 }
@@ -61,6 +68,7 @@ pub struct MusicAssets{
     pub bell: Handle<AudioSource>,
     pub bike1: Handle<AudioSource>,
     pub bike2: Handle<AudioSource>,
+    pub boss: Handle<AudioSource>,
     pub coin: Handle<AudioSource>,
     pub dead: Handle<AudioSource>,
     pub festival: Handle<AudioSource>,
@@ -70,6 +78,7 @@ pub struct MusicAssets{
     pub museum: Handle<AudioSource>,
     pub shoot: Handle<AudioSource>,
     pub trap: Handle<AudioSource>,
+    pub xjtu: Handle<AudioSource>,
 }
 
 
@@ -103,6 +112,7 @@ pub struct QuizAssets{
 
 #[derive(Resource, Default)]
 pub struct BuildingAssets{
+    pub alphabeta: Handle<Image>,
     pub block0: Handle<Image>,
     pub block1: Handle<Image>,
     pub block2: Handle<Image>,
@@ -146,6 +156,7 @@ fn load_assets(
         apple: asset_server.load("images/apple.png"),
         bike: asset_server.load("images/bike1.png"),
         bullet: asset_server.load("images/bullet.png"),
+        ferris: asset_server.load("images/ferris.png"),
         fest1_1: asset_server.load("images/fest1-1.png"),
         fest1_2: asset_server.load("images/fest1-2.png"),
         f2_up: asset_server.load("images/f2_up.png"),
@@ -160,9 +171,13 @@ fn load_assets(
 
     *scene_assets = SceneAssets{
         arrow: asset_server.load("scene/arrow.png"),
+        boss: asset_server.load("scene/boss.png"),
         bg: asset_server.load("scene/bg.png"),
+        blood: asset_server.load("scene/blood.png"),
         building_center: asset_server.load("scene/building_center.png"),
+        building_e: asset_server.load("scene/building_E.png"),
         discription_a: asset_server.load("scene/discription_a.png"),
+        discription_b: asset_server.load("scene/discription_b.png"),
         discription_c: asset_server.load("scene/discription_c.png"),
         discription_d: asset_server.load("scene/discription_d.png"),
         festival1: asset_server.load("scene/festival1.png"),
@@ -188,6 +203,8 @@ fn load_assets(
         center: asset_server.load("background/center.png"),
         classroom: asset_server.load("background/classroom.png"),
         gate: asset_server.load("background/gate.png"),
+        inside_e: asset_server.load("background/insideE.png"),
+        library: asset_server.load("background/library.png"),
         museum: asset_server.load("background/museum.png"),
         street: asset_server.load("background/street.png"),
     };
@@ -197,6 +214,7 @@ fn load_assets(
         bell: asset_server.load("music/bell.ogg"),
         bike1: asset_server.load("music/bike1.ogg"),
         bike2: asset_server.load("music/bike2.ogg"),
+        boss: asset_server.load("music/boss.ogg"),
         coin: asset_server.load("music/coin.ogg"),
         dead: asset_server.load("music/dead.ogg"),
         festival: asset_server.load("music/festivalbgm.ogg"),
@@ -206,6 +224,7 @@ fn load_assets(
         museum: asset_server.load("music/museumbgm.ogg"),
         shoot: asset_server.load("music/shoot.ogg"),
         trap: asset_server.load("music/trap.ogg"),
+        xjtu: asset_server.load("music/xjtu.ogg"),
     };
 
     *quiz_assets = QuizAssets{
@@ -236,6 +255,7 @@ fn load_assets(
     };
 
     *building_assets = BuildingAssets{
+        alphabeta: asset_server.load("images/alphabeta.png"),
         block0: asset_server.load("images/block0.png"),
         block1: asset_server.load("images/block1.png"),
         block2: asset_server.load("images/block2.png"),

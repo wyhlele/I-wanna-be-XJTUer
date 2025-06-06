@@ -35,7 +35,7 @@ impl Plugin for WarpPlugin{
 }
 
 #[derive(Resource)]
-pub struct AnimationTimer(Timer);
+struct AnimationTimer(Timer);
 
 pub fn spawn_single_warp(
     commands: &mut Commands,

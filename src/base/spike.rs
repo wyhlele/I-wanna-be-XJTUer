@@ -34,7 +34,7 @@ pub fn spawn_single_spike(
         GravityScale(0.0)
     ).insert(
         Collider::triangle(
-            Vec2::new(-16.0, -16.0),Vec2::new(16.0, -16.0),Vec2::new(0.0, 16.0)
+            Vec2::new(-15.5, -16.0),Vec2::new(15.5, -16.0),Vec2::new(0.0, 16.0)
         )
     ).insert(
         ColliderMassProperties::Mass(10000.0)
@@ -73,7 +73,7 @@ pub fn spawn_single_spike_fixed(
         RigidBody::Fixed
     ).insert(
         Collider::triangle(
-            Vec2::new(-16.0, -16.0),Vec2::new(16.0, -16.0),Vec2::new(0.0, 16.0)
+            Vec2::new(-15.5, -16.0),Vec2::new(15.5, -16.0),Vec2::new(0.0, 16.0)
         )
     ).insert(
         CollisionGroups::new(

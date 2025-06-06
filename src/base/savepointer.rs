@@ -73,7 +73,7 @@ fn do_save(
                 let is_entity2_a = savepointer_query.get(*entity_a).is_ok();
                 if is_entity1_b && is_entity2_a{
                     let pointer = savepointer_query.get(*entity_a).unwrap();
-                    if pointer.id == 0 || pointer.id>kid_saver.save_id{
+                    if pointer.id == 0 || kid_saver.save_id >=13 || pointer.id>kid_saver.save_id{
                         kid_saver.save_id = pointer.id;
                         kid_saver.position = pointer.position;
                     }

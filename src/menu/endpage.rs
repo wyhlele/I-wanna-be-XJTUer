@@ -4,8 +4,11 @@ use bevy::sprite::Sprite;
 const BASEX: f32 = -2.*800.;
 const BASEY: f32 = 0.0;
 
-use crate::asset_loader::{BackGroundAssets, SceneAssets};
+use crate::asset_loader::{BackGroundAssets, ImageAssets, SceneAssets};
 use crate::base::ground::spawn_single_box;
+use crate::base::savepointer::spawn_single_savepointer;
+use crate::base::wrap::spawn_single_warp;
+use crate::state::BGMReload;
 
 pub struct EndPagePlugin;
 impl Plugin for EndPagePlugin{
@@ -18,6 +21,7 @@ fn spawn_menu(
     mut commands: Commands,
     scene_assets: Res<SceneAssets>,
     bg_assets: Res<BackGroundAssets>,
+    image_assets: Res<ImageAssets>,
     mut texture_atlases: ResMut<Assets<TextureAtlasLayout>>,
 ){
     commands.spawn(
@@ -61,4 +65,23 @@ fn spawn_menu(
         Transform::from_xyz(BASEX,BASEY,0.0)
     );
 
+    let wr_layout = TextureAtlasLayout::from_grid(UVec2::new(32, 32), 4, 1, None, None);
+    let wr_atlas_layout = texture_atlases.add(wr_layout);
+    let wr_atlas = TextureAtlas{
+        layout : wr_atlas_layout,
+        index : 0,
+    };
+    let wr_image = image_assets.warp.clone();
+
+    let warp = spawn_single_warp(&mut commands,&wr_image,&wr_atlas,BASEX+384.,BASEY-256.,0.,0.);
+    commands.entity(warp).insert(BGMReload{id:0});
+
+    let sv_layout = TextureAtlasLayout::from_grid(UVec2::new(32, 32), 2, 1, None, None);
+    let sv_atlas_layout = texture_atlases.add(sv_layout);
+    let sv_atlas = TextureAtlas{
+        layout : sv_atlas_layout,
+        index : 0,
+    };
+    let sv_image = image_assets.save.clone();
+    spawn_single_savepointer(&mut commands,&sv_image,&sv_atlas,0.,-8.,BASEX,BASEY,14);
 }
