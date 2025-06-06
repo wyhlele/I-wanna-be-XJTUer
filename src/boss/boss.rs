@@ -1,4 +1,3 @@
-use bevy::math::VectorSpace;
 use bevy::prelude::*;
 use bevy_rapier2d::prelude::*;
 
@@ -9,7 +8,7 @@ use crate::base::kid::Kid;
 use crate::base::moveto::Move;
 use crate::base::trap::Trap;
 use crate::schedule::InGameSet;
-use crate::state::{BGMReload, GameState, NeedReload};
+use crate::state::{GameState, NeedReload};
 
 const BASEX: f32 = -800.0*3.;
 const BASEY: f32 = 608.0;
