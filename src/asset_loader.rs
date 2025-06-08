@@ -5,6 +5,7 @@ use crate::state::GameState;
 #[derive(Resource, Default)]
 pub struct ImageAssets{
     pub apple: Handle<Image>,
+    pub beam: Handle<Image>,
     pub bike: Handle<Image>,
     pub bullet: Handle<Image>,
     pub ferris: Handle<Image>,
@@ -60,24 +61,28 @@ pub struct BackGroundAssets{
     pub library: Handle<Image>,
     pub museum: Handle<Image>,
     pub street: Handle<Image>,
+    pub top: Handle<Image>,
 }
 
 #[derive(Resource, Default)]
 pub struct MusicAssets{
-    pub building: Handle<AudioSource>,
+    pub beam: Handle<AudioSource>,
     pub bell: Handle<AudioSource>,
     pub bike1: Handle<AudioSource>,
     pub bike2: Handle<AudioSource>,
     pub boss: Handle<AudioSource>,
+    pub building: Handle<AudioSource>,
     pub coin: Handle<AudioSource>,
     pub dead: Handle<AudioSource>,
     pub festival: Handle<AudioSource>,
     pub gate: Handle<AudioSource>,
+    pub hit: Handle<AudioSource>,
     pub jump1: Handle<AudioSource>,
     pub jump2: Handle<AudioSource>,
     pub museum: Handle<AudioSource>,
     pub shoot: Handle<AudioSource>,
     pub trap: Handle<AudioSource>,
+    pub win: Handle<AudioSource>,
     pub xjtu: Handle<AudioSource>,
 }
 
@@ -154,6 +159,7 @@ fn load_assets(
     
     *image_assets = ImageAssets{
         apple: asset_server.load("images/apple.png"),
+        beam: asset_server.load("images/beam.png"),
         bike: asset_server.load("images/bike1.png"),
         bullet: asset_server.load("images/bullet.png"),
         ferris: asset_server.load("images/ferris.png"),
@@ -207,23 +213,27 @@ fn load_assets(
         library: asset_server.load("background/library.png"),
         museum: asset_server.load("background/museum.png"),
         street: asset_server.load("background/street.png"),
+        top: asset_server.load("background/top.png"),
     };
 
     *music_assets = MusicAssets{
-        building: asset_server.load("music/buildingbgm.ogg"),
+        beam: asset_server.load("music/beam.ogg"),
         bell: asset_server.load("music/bell.ogg"),
         bike1: asset_server.load("music/bike1.ogg"),
         bike2: asset_server.load("music/bike2.ogg"),
         boss: asset_server.load("music/boss.ogg"),
+        building: asset_server.load("music/buildingbgm.ogg"),
         coin: asset_server.load("music/coin.ogg"),
         dead: asset_server.load("music/dead.ogg"),
         festival: asset_server.load("music/festivalbgm.ogg"),
         gate: asset_server.load("music/gatebgm.ogg"),
+        hit: asset_server.load("music/hit.ogg"),
         jump1: asset_server.load("music/jump1.ogg"),
         jump2: asset_server.load("music/jump2.ogg"),
         museum: asset_server.load("music/museumbgm.ogg"),
         shoot: asset_server.load("music/shoot.ogg"),
         trap: asset_server.load("music/trap.ogg"),
+        win: asset_server.load("music/win.ogg"),
         xjtu: asset_server.load("music/xjtu.ogg"),
     };
 

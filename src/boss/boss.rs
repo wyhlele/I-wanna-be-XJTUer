@@ -1,8 +1,12 @@
+use std::f32::consts::PI;
+
 use bevy::prelude::*;
 use bevy_rapier2d::prelude::*;
 
 use bevy::sprite::Sprite;
-use crate::asset_loader::{BackGroundAssets, ImageAssets, SceneAssets};
+use rand::Rng;
+use crate::asset_loader::{BackGroundAssets, ImageAssets, MusicAssets, SceneAssets};
+use crate::base::apple::spawn_single_apple;
 use crate::base::ground::spawn_single_box;
 use crate::base::kid::Kid;
 use crate::base::moveto::Move;
@@ -20,7 +24,8 @@ impl Plugin for BossPlugin{
     fn build(&self,app: &mut App){
         app.add_systems(PostStartup,spawn_once)
         .add_systems(OnExit(GameState::Reload),spawn_reload)
-        .add_systems(Update, (update_boss, do_start).chain().in_set(InGameSet::EntityUpdates));
+        .add_systems(Update, (update_boss, do_attack, do_start).chain().in_set(InGameSet::EntityUpdates))
+        .add_systems(Update, (do_split, do_beam).chain().in_set(InGameSet::EntityUpdates));
     }
 }
 
@@ -35,10 +40,30 @@ pub struct Boss{
     pub state: usize,
     pub countdown: i16,
     pub able: bool,
+    pub weapon: i8,
+    pub attack: i16,
+    pub pos: f32,
+    pub dir: f32,
 }
 
 #[derive(Component, Debug, Default)]
 pub struct Blood;
+
+#[derive(Component, Debug, Default)]
+pub struct Beam{
+    time: i16,
+    speed: f32,
+    direction: Vec2,
+}
+
+#[derive(Resource)]
+struct BeamTimer(Timer);
+
+#[derive(Component, Debug, Default)]
+pub struct Split{
+    time: i16,
+    size: f32,
+}
 
 fn spawn_once(
     mut commands: Commands,
@@ -77,6 +102,8 @@ fn spawn_once(
     spawn_single_box(&mut commands,8.,2.,BASEX,BASEY,1.5,0.5);
 
     commands.insert_resource(BossTimer(Timer::from_seconds(0.01, TimerMode::Repeating)));
+    commands.insert_resource(BeamTimer(Timer::from_seconds(0.01, TimerMode::Repeating)));
+
 }
 
 fn spawn_reload(
@@ -94,7 +121,8 @@ fn spawn_reload(
     Vec2::new(-160., -145.),
     Vec2::new(-210., -70.),
     Vec2::new(-160., 40.),
-    Vec2::new(-80., 100.)];
+    Vec2::new(-80., 100.),
+    Vec2::new(0., 128.),];
 
     let boss_layout = TextureAtlasLayout::from_grid(UVec2::new(432, 300), 1, 2, None, None);
     let boss_atlas_layout = texture_atlases.add(boss_layout);
@@ -120,6 +148,10 @@ fn spawn_reload(
             state: 10,
             countdown: 0,
             able: false,
+            weapon: -1,
+            attack: 100,
+            pos: BASEX,
+            dir: 0.,
         }).insert(NeedReload)
         .insert(Trap)
         .insert(
@@ -162,7 +194,7 @@ fn spawn_reload(
             ..Default::default()
         }
     ).insert(
-        Transform::from_xyz(BASEX, BASEY+256., 2.)
+        Transform::from_xyz(BASEX, BASEY+256., 1.1)
     ).insert(Blood)
     .insert(NeedReload);
 
@@ -171,9 +203,13 @@ fn spawn_reload(
 }
 
 fn update_boss(
-    mut query: Query<(&mut Boss, &mut Transform,&mut Velocity, &mut Move, &mut Sprite),With<Boss>>,
+    mut commands: Commands,
+    mut query: Query<(&mut Boss, &mut Transform,&mut Velocity, &mut Move, &mut Sprite),(With<Boss>,Without<Kid>)>,
+    kid_query: Query<&Transform,With<Kid>>,
+    image_assets: Res<ImageAssets>,
     time: Res<Time>,
     mut timer: ResMut<BossTimer>,
+    mut texture_atlases: ResMut<Assets<TextureAtlasLayout>>
 ){
     timer.0.tick(time.delta());
     if timer.0.finished() {
@@ -184,6 +220,15 @@ fn update_boss(
         if boss.able == false{
             return;
         }
+        let apple_layout = TextureAtlasLayout::from_grid(UVec2::new(32, 32), 2,1, None, None);
+        let apple_atlas_layout = texture_atlases.add(apple_layout);
+        let apple_atlas = TextureAtlas{
+            layout : apple_atlas_layout,
+            index : 0,
+        };
+        let apple_image = image_assets.apple.clone();
+
+
         if boss.countdown>0{
             if let Some(atlas) = &mut sprite.texture_atlas{
                 atlas.index = 1;
@@ -194,8 +239,21 @@ fn update_boss(
             boss.countdown -= 1;
         }else{
             if let Some(atlas) = &mut sprite.texture_atlas{
-                atlas.index = 0;
+                if atlas.index !=0{
+                    atlas.index = 0;
+                    let Ok(transform) = kid_query.get_single()
+                    else{
+                        return ;
+                    } ;
+                    let vel = (transform.translation - trans.translation).normalize();
+                    let app = spawn_single_apple(&mut commands, &apple_image, &apple_atlas, 
+                        trans.translation.x, trans.translation.y,
+                        1.5, Vec2::new(vel.x, vel.y) * moveto.linear_speed * 0.7,
+                    );
+                    commands.entity(app).insert(Split{time:1,size:15.}).insert(NeedReload);
+                }
             }
+            
         }
         if (velocity.linvel - Vec2::ZERO).length() <= EPSILON{
             if trans.translation.x > BASEX && trans.translation.y > BASEY{
@@ -206,6 +264,132 @@ fn update_boss(
                 moveto.goal_pos = Vec2::new(BASEX-320., BASEY+208.);
             }else{
                 moveto.goal_pos = Vec2::new(BASEX+320., BASEY+208.);
+            }
+        }
+    }
+}
+
+fn do_attack(
+    mut commands: Commands,
+    mut query: Query<(&mut Boss, &mut Transform,&mut Move),(With<Boss>,Without<Kid>)>,
+    kid_query: Query<&Transform,With<Kid>>,
+    image_assets: Res<ImageAssets>,
+    music_assets: Res<MusicAssets>,
+    time: Res<Time>,
+    mut timer: ResMut<BossTimer>,
+    mut texture_atlases: ResMut<Assets<TextureAtlasLayout>>
+){
+    timer.0.tick(time.delta());
+    if timer.0.finished() {
+        let Ok((mut boss, trans,  moveto)) = query.get_single_mut()
+        else{
+            return;
+        };
+        if boss.able == false{
+            return;
+        }
+        let apple_layout = TextureAtlasLayout::from_grid(UVec2::new(32, 32), 2,1, None, None);
+        let apple_atlas_layout = texture_atlases.add(apple_layout);
+        let apple_atlas = TextureAtlas{
+            layout : apple_atlas_layout,
+            index : 0,
+        };
+        let apple_image = image_assets.apple.clone();
+
+        if boss.attack>0{
+            boss.attack -= 1;
+            let time = ((boss.attack as f32) * (moveto.linear_speed/300.)) as i16;
+            let Ok(transform) = kid_query.get_single()
+            else{
+                return ;
+            } ;
+            if boss.weapon==0{
+                if time % 100 == 0{
+                    let vel = (transform.translation - trans.translation).normalize();
+                    let app = spawn_single_apple(&mut commands, &apple_image, &apple_atlas, 
+                        trans.translation.x, trans.translation.y,
+                        1.0, Vec2::new(vel.x, vel.y) * moveto.linear_speed * 0.7,
+                    );
+                    commands.entity(app).insert(Split{time:0,size:10.}).insert(NeedReload);
+                }
+            }else if boss.weapon==1{
+                if time % 200 == 0{
+                    let vel = (transform.translation - trans.translation).normalize();
+                    let mut ori = Vec2::new(vel.x, vel.y);
+                    let angle_step = PI / 8.0;
+                    for _ in 0..16 {
+                        let app = spawn_single_apple(&mut commands, &apple_image, &apple_atlas, 
+                            trans.translation.x, trans.translation.y,
+                            1.0,  ori.clone()* moveto.linear_speed * 1.2,
+                        );
+                        commands.entity(app).insert(Split{time:0,size:10.}).insert(NeedReload);
+                        ori = Vec2::new(ori.x*angle_step.cos() - ori.y*angle_step.sin(),
+                            ori.x*angle_step.sin() + ori.y*angle_step.cos());
+                    }
+                }
+            }else if boss.weapon>=2{
+                if time >= 300{
+                    commands.spawn(
+                        Sprite{
+                            image: image_assets.beam.clone(),
+                            ..Default::default()
+                        }
+                    ).insert(Beam{
+                        time: 150 / ((moveto.linear_speed/300.) as i16),
+                        speed: moveto.linear_speed * 5.0,
+                        direction: Vec2::new(-boss.dir, 0.)
+                    }).insert(
+                        Transform{
+                            translation: Vec3::new(BASEX+boss.dir*384., boss.pos, 1.2),
+                            scale: Vec3::new(1., 1., 1.),
+                            ..Default::default()
+                        }
+                    ).insert(
+                        Velocity::zero()
+                    ).insert(
+                        RigidBody::Dynamic
+                    ).insert(
+                        GravityScale(0.0)
+                    ).insert(
+                        Collider::cuboid(16., 16.)
+                    ).insert(
+                        CollisionGroups::new(
+                            Group::GROUP_3,
+                            Group::GROUP_1,
+                        )
+                    ).insert(SolverGroups::new(
+                        Group::GROUP_3,
+                        Group::GROUP_1,
+                        )
+                    ).insert(Trap)
+                    .insert(NeedReload);
+                }
+            }
+        }else{
+            boss.attack = (400./(moveto.linear_speed/300.)) as i16;
+            let ran;
+            if boss.state <= 3{
+                ran = 4;
+            }else if boss.state <= 5{
+                ran = 2;
+            }else{
+                ran = 1;
+            }
+            let mut rng = rand::thread_rng();
+            boss.weapon = rng.gen_range(0..ran);
+            if boss.weapon >= 2{
+                commands.spawn(AudioPlayer::new(music_assets.beam.clone())).insert(NeedReload);
+                let Ok(transform) = kid_query.get_single()
+                else{
+                    return ;
+                } ;
+                let y = ((transform.translation.y/32.)as i32 *32)as f32 + 16.;
+                boss.pos = y;
+                if trans.translation.x < BASEX{
+                    boss.dir = 1.;
+                }else{
+                    boss.dir = -1.;
+                }
             }
         }
         
@@ -240,4 +424,66 @@ fn do_start(
             _ => {}
         }
     }
+}
+
+fn do_split(
+    mut commands: Commands,
+    query: Query<(Entity, &Split, &Transform, &Velocity),With<Split>>,
+    image_assets: Res<ImageAssets>,
+    mut texture_atlases: ResMut<Assets<TextureAtlasLayout>>
+){
+    let apple_layout = TextureAtlasLayout::from_grid(UVec2::new(32, 32), 2,1, None, None);
+    let apple_atlas_layout = texture_atlases.add(apple_layout);
+    let apple_atlas = TextureAtlas{
+        layout : apple_atlas_layout,
+        index : 0,
+    };
+    let apple_image = image_assets.apple.clone();
+    for (entity, split, trans, velocity) in query.iter(){
+        if trans.translation.x - split.size <= BASEX - 368. ||
+            trans.translation.x + split.size >= BASEX + 368. ||
+            trans.translation.y - split.size <= BASEY - 272. ||
+            trans.translation.y + split.size >= BASEY + 272.{
+            if split.time > 0{
+                let vel = velocity.linvel;
+                let mut ori = Vec2::new(vel.x, vel.y);
+                let angle_step = PI / 2.0;
+                for _ in 0..4 {
+                    let app = spawn_single_apple(&mut commands, &apple_image, &apple_atlas, 
+                        trans.translation.x, trans.translation.y,
+                        0.5,  ori.clone(),
+                    );
+                    commands.entity(app).insert(Split{time:split.time-1,size:0.5*split.size}).insert(NeedReload);
+                    ori = Vec2::new(ori.x*angle_step.cos() - ori.y*angle_step.sin(),
+                        ori.x*angle_step.sin() + ori.y*angle_step.cos());
+                }
+            }
+            commands.entity(entity).despawn();
+        }
+    }
+}
+
+fn do_beam(
+    mut commands: Commands,
+    time: Res<Time>,
+    mut timer: ResMut<BeamTimer>,
+    mut query: Query<(Entity, &mut Beam, &Transform, &mut Velocity),With<Beam>>,
+){
+    timer.0.tick(time.delta());
+    if timer.0.finished() {
+        for (entity, mut beam, trans, mut velocity) in query.iter_mut(){
+            if beam.time > 0{
+                beam.time -= 1;
+            }else if beam.time==0{
+                velocity.linvel = beam.speed * beam.direction;
+                beam.time = -1;
+            }else if trans.translation.x <= BASEX - 400. ||
+                trans.translation.x >= BASEX + 400. ||
+                trans.translation.y <= BASEY - 304. ||
+                trans.translation.y >= BASEY + 304.{
+                commands.entity(entity).despawn();
+            }
+        }
+    }
+
 }

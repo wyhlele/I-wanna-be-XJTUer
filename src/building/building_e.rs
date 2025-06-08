@@ -118,4 +118,6 @@ fn spawn_once(
     let warp = spawn_single_warp(&mut commands,&wr_image,&wr_atlas,BASEX+384.,BASEY+160.,-2400.,608.);
     commands.entity(warp).insert(BGMReload{id:13}).insert(BossStart);
 
+    spawn_single_warp(&mut commands,&wr_image,&wr_atlas,BASEX,BASEY+288.,2400.-96.,608.+128.);
+
 }

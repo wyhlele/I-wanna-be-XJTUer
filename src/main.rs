@@ -29,6 +29,7 @@ use building::building_b::BuildingBPlugin;
 use building::building_c::BuildingCPlugin;
 use building::building_d::BuildingDPlugin;
 use building::building_e::BuildingEPlugin;
+use building::building_top::BuildingTopPlugin;
 use camera::CameraPlugin;
 use festival::level1::Fest1Plugin;
 use festival::level2::Fest2Plugin;
@@ -96,9 +97,10 @@ fn main() {
         .add_plugins(BuildingCPlugin)
         .add_plugins(BuildingDPlugin)
         .add_plugins(BuildingEPlugin)
+        .add_plugins(BuildingTopPlugin)
         .add_plugins(BossPlugin)
         .add_plugins(RapierPhysicsPlugin::<NoUserData>::pixels_per_meter(100.0))
-        .add_plugins(RapierDebugRenderPlugin::default())
+        // .add_plugins(RapierDebugRenderPlugin::default())
         .run();
 }
 

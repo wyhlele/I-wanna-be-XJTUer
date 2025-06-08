@@ -3,7 +3,6 @@ use bevy_rapier2d::prelude::*;
 
 use bevy::sprite::Sprite;
 
-use crate::asset_loader::ImageAssets;
 use crate::schedule::InGameSet;
 use crate::base::trap::Trap;
 
@@ -28,6 +27,8 @@ pub fn spawn_single_apple(
     sprtie: &Handle<Image>,
     atlas: &TextureAtlas,
     x: f32,y: f32,
+    size: f32,
+    velocity: Vec2,
 ) -> Entity{
     commands.spawn((
         Sprite{
@@ -38,9 +39,16 @@ pub fn spawn_single_apple(
         Trap,
         Apple,
     )).insert(
-        Transform::from_xyz(x,y,0.0)
+        Transform{
+            translation: Vec3::new(x,y,1.3),
+            scale: Vec3::new(size, size, 0.5),
+            ..Default::default()
+        }
     ).insert(
-        Velocity::zero()
+        Velocity{
+            linvel: velocity,
+            angvel: 0.0,
+        }
     ).insert(
         RigidBody::Dynamic
     ).insert(
@@ -52,7 +60,7 @@ pub fn spawn_single_apple(
     ).insert(
         CollisionGroups::new(
             Group::GROUP_3,
-            Group::GROUP_1|Group::GROUP_4,
+            Group::GROUP_1,
         )
     ).insert(SolverGroups::new(
         Group::GROUP_3,
@@ -63,19 +71,7 @@ pub fn spawn_single_apple(
 
 fn spawn_apple(
     mut commands: Commands,
-    image_assets: Res<ImageAssets>,
-    mut texture_atlases: ResMut<Assets<TextureAtlasLayout>>,
 ){
-
-    let layout = TextureAtlasLayout::from_grid(UVec2::new(32, 32), 2,1, None, None);
-    let atlas_layout = texture_atlases.add(layout);
-    let atlas = TextureAtlas{
-        layout : atlas_layout,
-        index : 0,
-    };
-    let image = image_assets.apple.clone();
-    // spawn_single_apple(&mut commands, &image, &atlas, 0.0, 64.0);
-
     commands.insert_resource(AnimationTimer(Timer::from_seconds(0.5, TimerMode::Repeating)));
 }
 

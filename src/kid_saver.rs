@@ -1,15 +1,13 @@
 use bevy::prelude::*;
 
-// const BEGINX: f32 = -256.0;
-// const BEGINY: f32 = -224.0;
+use std::fs;
+use std::io::{self, BufRead};
+use std::path::Path;
 
-// const BEGINX: f32 = 800.0*2.;
-// const BEGINY: f32 = 608.0*2.+64.;
+const BEGINX: f32 = 0.;
+const BEGINY: f32 = 0.;
 
-const BEGINX: f32 = 1600.0+352.;
-const BEGINY: f32 = 0.0+160.;
-
-const SAVE: i8 = 12;
+const SAVE: i8 = 0;
 
 #[derive(Resource, Debug, Default)]
 pub struct KidSaver{
@@ -29,8 +27,32 @@ impl Plugin for KidSaverPlugin{
 fn create_saver(
     mut kid_saver: ResMut<KidSaver>,
 ){
-    *kid_saver = KidSaver{
-        position: Vec2::new(BEGINX, BEGINY),
-        save_id: SAVE,
-    };
+    let file_path = Path::new("save");
+    if file_path.exists() {
+        let file = fs::File::open(file_path).expect("ERROR: cannot open file save");
+        let reader = io::BufReader::new(file);
+
+        let mut numbers = Vec::new();
+        for line in reader.lines() {
+            let line = line.expect("ERROR: cannot open file save");
+            for word in line.split_whitespace() {
+                if let Ok(num) = word.parse::<i32>() {
+                    numbers.push(num);
+                }
+            }
+        }
+        if numbers.len() >= 3 {
+            *kid_saver = KidSaver{
+                position: Vec2::new(numbers[1] as f32, numbers[2] as f32),
+                save_id: numbers[0] as i8,
+            };
+        }
+
+    } else {
+        *kid_saver = KidSaver{
+            position: Vec2::new(BEGINX, BEGINY),
+            save_id: SAVE,
+        };
+    }
+    
 }

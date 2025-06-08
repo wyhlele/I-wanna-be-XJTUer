@@ -167,7 +167,7 @@ fn spawn_once(
     };
     let wr_image = image_assets.warp.clone();
     
-    let wp1 = spawn_single_warp(&mut commands,&wr_image,&wr_atlas,BASEX-224.,BASEY-256.,BASEX,BASEY+608.*4.);
+    let wp1 = spawn_single_warp(&mut commands,&wr_image,&wr_atlas,BASEX-224.,BASEY-256.,BASEX,BASEY+608.*4.+64.);
     let wp2 = spawn_fake_warp(&mut commands,&wr_image,&wr_atlas,BASEX,BASEY-256.);
     let wp3 = spawn_fake_warp(&mut commands,&wr_image,&wr_atlas,BASEX+224.,BASEY-256.);
 

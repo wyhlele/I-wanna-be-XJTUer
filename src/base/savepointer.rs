@@ -1,7 +1,10 @@
 use bevy::prelude::*;
 use bevy_rapier2d::prelude::*;
-
 use bevy::sprite::Sprite;
+
+use std::fs::File;
+use std::io::Write;
+use std::path::Path;
 
 use crate::base::kid::Kid;
 use crate::kid_saver::KidSaver;
@@ -76,6 +79,21 @@ fn do_save(
                     if pointer.id == 0 || kid_saver.save_id >=13 || pointer.id>kid_saver.save_id{
                         kid_saver.save_id = pointer.id;
                         kid_saver.position = pointer.position;
+                        let file_path = Path::new("save");
+                        let mut file = match File::create(file_path) {
+                            Ok(file) => file,
+                            Err(_) => {
+                                info!("ERROR: cannot create file save");
+                                return;
+                            }
+                        };
+                        let numbers = [pointer.id as i32, pointer.position.x as i32, pointer.position.y as i32];
+                        for &number in &numbers {
+                            if let Err(_) = writeln!(file, "{}", number) {
+                                info!("ERROR: cannot create file save");
+                                return;
+                            }
+                        }
                     }
                     let mut sprite = sprite_query.get_mut(*entity_a);
                     if let Ok(ssprite) = &mut sprite{
@@ -92,6 +110,21 @@ fn do_save(
                     if pointer.id == 0 || pointer.id>kid_saver.save_id{
                         kid_saver.save_id = pointer.id;
                         kid_saver.position = pointer.position;
+                        let file_path = Path::new("save");
+                        let mut file = match File::create(file_path) {
+                            Ok(file) => file,
+                            Err(_) => {
+                                info!("ERROR: cannot create file save");
+                                return;
+                            }
+                        };
+                        let numbers = [pointer.id as i32, pointer.position.x as i32, pointer.position.y as i32];
+                        for &number in &numbers {
+                            if let Err(_) = writeln!(file, "{}", number) {
+                                info!("ERROR: cannot create file save");
+                                return;
+                            }
+                        }
                     }
                     let mut sprite = sprite_query.get_mut(*entity_b);
                     if let Ok(ssprite) = &mut sprite{

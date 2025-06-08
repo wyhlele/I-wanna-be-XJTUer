@@ -86,6 +86,7 @@ fn remove_bullet(
     bgm_query: Query<Entity,(With<BGM>,Without<Boss>,Without<Blood>,Without<Bullet>)>,
     bullet_query: Query<&Bullet,(With<Bullet>,Without<BGM>,Without<Boss>,Without<Blood>)>,
     image_assets: Res<ImageAssets>,
+    music_assets: Res<MusicAssets>,
     mut texture_atlases: ResMut<Assets<TextureAtlasLayout>>
 ){
     for collision_event in collision_events.read() {
@@ -102,7 +103,7 @@ fn remove_bullet(
                         continue;
                     }
                     boss.state -= 1;
-                    boss.countdown = 200;
+                    boss.countdown = 100;
                     for mut sprite in blood_query.iter_mut(){
                         if let Some(atlas) = &mut sprite.texture_atlas{
                             atlas.index = boss.state;
@@ -123,8 +124,12 @@ fn remove_bullet(
                         };
                         let wr_image = image_assets.warp.clone();
 
-                        let warp = spawn_once_warp(&mut commands,&wr_image,&wr_atlas,-2400.,608.,-1600.,0.);
+                        let warp = spawn_once_warp(&mut commands,&wr_image,&wr_atlas,-2400.,608.+192.,-1600.,0.);
                         commands.entity(warp).insert(BGMReload{id:14});
+
+                        commands.spawn(AudioPlayer::new(music_assets.win.clone())).insert(NeedReload);
+                    }else{
+                        commands.spawn(AudioPlayer::new(music_assets.hit.clone())).insert(NeedReload);
                     }
                 }
             }
