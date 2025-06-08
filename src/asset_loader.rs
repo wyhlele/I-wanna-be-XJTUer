@@ -66,6 +66,7 @@ pub struct BackGroundAssets{
 
 #[derive(Resource, Default)]
 pub struct MusicAssets{
+    pub achievement: Handle<AudioSource>,
     pub beam: Handle<AudioSource>,
     pub bell: Handle<AudioSource>,
     pub bike1: Handle<AudioSource>,
@@ -132,6 +133,20 @@ pub struct BuildingAssets{
     pub hua: Handle<Image>,
 }
 
+
+#[derive(Resource, Default)]
+pub struct AchievementAssets{
+    pub achievement0: Handle<Image>,
+    pub achievement1: Handle<Image>,
+    pub achievement2: Handle<Image>,
+    pub achievement3: Handle<Image>,
+    pub achievement4: Handle<Image>,
+    pub achievement5: Handle<Image>,
+    pub achievement6: Handle<Image>,
+    pub achievement7: Handle<Image>,
+    pub achievement8: Handle<Image>,
+    pub achievement9: Handle<Image>,
+}
 pub struct AssetLoaderPlugin;
 
 impl Plugin for AssetLoaderPlugin{
@@ -142,6 +157,7 @@ impl Plugin for AssetLoaderPlugin{
             .init_resource::<MusicAssets>()
             .init_resource::<QuizAssets>()
             .init_resource::<BuildingAssets>()
+            .init_resource::<AchievementAssets>()
             .add_systems(Startup,load_assets);
     }
 }
@@ -153,6 +169,7 @@ fn load_assets(
     mut music_assets: ResMut<MusicAssets>, 
     mut quiz_assets: ResMut<QuizAssets>, 
     mut building_assets: ResMut<BuildingAssets>, 
+    mut achievement_assets: ResMut<AchievementAssets>, 
     asset_server: Res<AssetServer>,
     mut next_state: ResMut<NextState<GameState>>,
 ){
@@ -217,6 +234,7 @@ fn load_assets(
     };
 
     *music_assets = MusicAssets{
+        achievement: asset_server.load("music/achievement.ogg"),
         beam: asset_server.load("music/beam.ogg"),
         bell: asset_server.load("music/bell.ogg"),
         bike1: asset_server.load("music/bike1.ogg"),
@@ -278,6 +296,19 @@ fn load_assets(
         block9: asset_server.load("images/block9.png"),
         countmap: asset_server.load("images/countmap.png"),
         hua: asset_server.load("images/hua.png"),
+    };
+
+    *achievement_assets = AchievementAssets{
+        achievement0: asset_server.load("achievement/achievement0.png"),
+        achievement1: asset_server.load("achievement/achievement1.png"),
+        achievement2: asset_server.load("achievement/achievement2.png"),
+        achievement3: asset_server.load("achievement/achievement3.png"),
+        achievement4: asset_server.load("achievement/achievement4.png"),
+        achievement5: asset_server.load("achievement/achievement5.png"),
+        achievement6: asset_server.load("achievement/achievement6.png"),
+        achievement7: asset_server.load("achievement/achievement7.png"),
+        achievement8: asset_server.load("achievement/achievement8.png"),
+        achievement9: asset_server.load("achievement/achievement9.png"),
     };
 
     next_state.set(GameState::InGame);

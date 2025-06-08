@@ -1,6 +1,6 @@
 [package]
 name = "I-wanna-be-XJTUer"
-version = "0.7.0"
+version = "0.9.5"
 edition = "2024"
 
 [dependencies]

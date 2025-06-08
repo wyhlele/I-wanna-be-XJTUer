@@ -234,7 +234,7 @@ fn update_boss(
                 atlas.index = 1;
             }
             if boss.countdown==100{
-                moveto.linear_speed *=1.05;
+                moveto.linear_speed *=1.03;
             }
             boss.countdown -= 1;
         }else{
