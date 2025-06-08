@@ -4,8 +4,23 @@ use std::fs;
 use std::io::{self, BufRead};
 use std::path::Path;
 
-const BEGINX: f32 = 0.;
-const BEGINY: f32 = 0.;
+const POS: [bevy::prelude::Vec2; 15] = [
+    Vec2::new(0.,0.),
+    Vec2::new(800.-9.*32.,608.-8.*32.),
+    Vec2::new(0.-11.*32.,2.*608.-8.*32.),
+    Vec2::new(-800.-10.*32.,608.+3.*32.),
+    Vec2::new(-2.*800.,-2.*608.),
+    Vec2::new(-800.,-608.),
+    Vec2::new(0.,-2.*608.),
+    Vec2::new(800.,-608.),
+    Vec2::new(2.*800.,-2.*608.),
+    Vec2::new(2.*800.,2.*608.+2.*32.),
+    Vec2::new(2.*800.-8.*32.,-8.*32.),
+    Vec2::new(2.*800.+3.*32.,2.*32.),
+    Vec2::new(2.*800.+11.*32.,5.*32.),
+    Vec2::new(-3.*800.,608.),
+    Vec2::new(-2.*800.,-8.*32.),
+];
 
 const SAVE: i8 = 0;
 
@@ -41,16 +56,20 @@ fn create_saver(
                 }
             }
         }
-        if numbers.len() >= 3 {
+        if numbers.len() >= 1 {
+            if numbers[0] == 13 || numbers[0]>14{
+                numbers[0] = 0;
+                warn!("File save damaged. Reload the game.");
+            }
             *kid_saver = KidSaver{
-                position: Vec2::new(numbers[1] as f32, numbers[2] as f32),
+                position: POS[numbers[0] as usize],
                 save_id: numbers[0] as i8,
             };
         }
 
     } else {
         *kid_saver = KidSaver{
-            position: Vec2::new(BEGINX, BEGINY),
+            position: POS[SAVE as usize],
             save_id: SAVE,
         };
     }

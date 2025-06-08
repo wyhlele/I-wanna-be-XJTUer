@@ -87,7 +87,7 @@ fn do_save(
                                 return;
                             }
                         };
-                        let numbers = [pointer.id as i32, pointer.position.x as i32, pointer.position.y as i32];
+                        let numbers = [pointer.id as i32];
                         for &number in &numbers {
                             if let Err(_) = writeln!(file, "{}", number) {
                                 info!("ERROR: cannot create file save");
@@ -118,7 +118,7 @@ fn do_save(
                                 return;
                             }
                         };
-                        let numbers = [pointer.id as i32, pointer.position.x as i32, pointer.position.y as i32];
+                        let numbers = [pointer.id as i32];
                         for &number in &numbers {
                             if let Err(_) = writeln!(file, "{}", number) {
                                 info!("ERROR: cannot create file save");

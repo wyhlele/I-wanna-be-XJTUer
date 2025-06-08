@@ -193,7 +193,7 @@ fn spawn_reload(
         }
     ).insert(
         Transform::from_xyz(BASEX-64., BASEY-32., -0.2)
-    ).insert(Num);
+    ).insert(Num).insert(NeedReload);
 
 }
 
