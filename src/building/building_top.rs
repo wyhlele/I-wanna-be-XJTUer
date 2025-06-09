@@ -98,7 +98,7 @@ fn do_traptop(
                 let is_entity2_b = traptop_query.get(*entity_b).is_ok();
                 if is_entity1_b && is_entity2_a || is_entity1_a && is_entity2_b{
                     if (kid_saver.achi>>7)&1==0{
-                        commands.spawn(Achievement{time: 72, id: 7})
+                        commands.spawn(Achievement{time: 149, id: 7})
                         .insert(Sprite{
                             image: achievement_assets.achievement7.clone(),
                             ..Default::default()

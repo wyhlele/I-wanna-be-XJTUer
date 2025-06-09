@@ -375,7 +375,7 @@ fn do_move(
     }
     if mypos.score > 10000{
         if (kid_saver.achi>>5)&1==0{
-            commands.spawn(Achievement{time: 72, id: 5})
+            commands.spawn(Achievement{time: 149, id: 5})
             .insert(Sprite{
                 image: achievement_assets.achievement5.clone(),
                 ..Default::default()

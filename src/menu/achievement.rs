@@ -126,8 +126,8 @@ fn do_show(
     timer.0.tick(time.delta());
     if timer.0.finished() {
         for (entity, mut achi, mut trans) in query.iter_mut(){
-            if achi.time >= 62{
-                trans.translation = Vec3::new(camera.translation.x+256., camera.translation.y-256.-((achi.time-62) as f32)*8., 0.5);
+            if achi.time >= 137{
+                trans.translation = Vec3::new(camera.translation.x+256., camera.translation.y-256.-((achi.time-137) as f32)*8., 0.5);
                 if (kid_saver.achi>>achi.id)&1==0{
                     kid_saver.achi |= 1<<achi.id;
                     commands.spawn(AudioPlayer::new(music_assets.achievement.clone()));
@@ -205,7 +205,7 @@ fn do_show(
             }else if achi.time<=12{
                 trans.translation = Vec3::new(camera.translation.x+256., camera.translation.y-256.-((12-achi.time) as f32)*8., 0.5);
                 if kid_saver.achi == 511{
-                    commands.spawn(Achievement{time: 90, id: 9})
+                    commands.spawn(Achievement{time: 165, id: 9})
                     .insert(Sprite{
                         image: achievement_assets.achievement9.clone(),
                         ..Default::default()
@@ -279,7 +279,7 @@ fn do_trig0(
                 let is_entity2_b = trig0_query.get(*entity_b).is_ok();
                 if is_entity1_b && is_entity2_a || is_entity1_a && is_entity2_b{
                     if (kid_saver.achi>>0)&1==0{
-                        commands.spawn(Achievement{time: 72, id: 0})
+                        commands.spawn(Achievement{time: 149, id: 0})
                         .insert(Sprite{
                             image: achievement_assets.achievement0.clone(),
                             ..Default::default()
@@ -310,7 +310,7 @@ fn do_trig2(
                 let is_entity2_b = trig2_query.get(*entity_b).is_ok();
                 if is_entity1_b && is_entity2_a || is_entity1_a && is_entity2_b{
                     if (kid_saver.achi>>2)&1==0{
-                        commands.spawn(Achievement{time: 72, id: 2})
+                        commands.spawn(Achievement{time: 149, id: 2})
                         .insert(Sprite{
                             image: achievement_assets.achievement2.clone(),
                             ..Default::default()
@@ -341,7 +341,7 @@ fn do_trig8(
                 let is_entity2_b = trig8_query.get(*entity_b).is_ok();
                 if is_entity1_b && is_entity2_a || is_entity1_a && is_entity2_b{
                     if (kid_saver.achi>>8)&1==0{
-                        commands.spawn(Achievement{time: 72, id: 8})
+                        commands.spawn(Achievement{time: 149, id: 8})
                         .insert(Sprite{
                             image: achievement_assets.achievement8.clone(),
                             ..Default::default()

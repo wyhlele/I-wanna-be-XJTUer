@@ -185,7 +185,7 @@ fn kid_movement_controls(
         kid.state = 0;
     }else if keyboard_input.pressed(KeyCode::KeyQ){
         if (kid_saver.achi>>3)&1==0{
-            commands.spawn(Achievement{time: 72, id: 3})
+            commands.spawn(Achievement{time: 149, id: 3})
             .insert(Sprite{
                 image: achievement_assets.achievement3.clone(),
                 ..Default::default()
@@ -321,7 +321,7 @@ fn kid_display_events(
                             item.dead = 1;
                         }
                         if (kid_saver.achi>>1)&1==0{
-                            commands.spawn(Achievement{time: 72, id: 1})
+                            commands.spawn(Achievement{time: 149, id: 1})
                             .insert(Sprite{
                                 image: achievement_assets.achievement1.clone(),
                                 ..Default::default()
@@ -361,7 +361,7 @@ fn kid_display_events(
                             item.dead = 1;
                         }
                         if (kid_saver.achi>>1)&1==0{
-                            commands.spawn(Achievement{time: 72, id: 1})
+                            commands.spawn(Achievement{time: 149, id: 1})
                             .insert(Sprite{
                                 image: achievement_assets.achievement1.clone(),
                                 ..Default::default()

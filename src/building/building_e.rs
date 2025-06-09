@@ -176,7 +176,7 @@ fn do_trans(
                     commands.entity(*entity_b).despawn_recursive();
                     spawn_single_kid(&mut commands,&image_assets.kid,&atlas,2400.-96.,608.+128.);
                     if (kid_saver.achi>>6)&1==0{
-                        commands.spawn(Achievement{time: 72, id: 6})
+                        commands.spawn(Achievement{time: 149, id: 6})
                         .insert(Sprite{
                             image: achievement_assets.achievement6.clone(),
                             ..Default::default()
@@ -186,7 +186,7 @@ fn do_trans(
                     commands.entity(*entity_a).despawn_recursive();
                     spawn_single_kid(&mut commands,&image_assets.kid,&atlas,2400.-96.,608.+128.);
                     if (kid_saver.achi>>6)&1==0{
-                        commands.spawn(Achievement{time: 72, id: 6})
+                        commands.spawn(Achievement{time: 149, id: 6})
                         .insert(Sprite{
                             image: achievement_assets.achievement6.clone(),
                             ..Default::default()

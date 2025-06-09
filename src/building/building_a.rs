@@ -488,7 +488,7 @@ fn do_move(
         }
         if kid_saver.solve == 3{
             if (kid_saver.achi>>4)&1==0{
-                commands.spawn(Achievement{time: 72, id: 4})
+                commands.spawn(Achievement{time: 149, id: 4})
                 .insert(Sprite{
                     image: achievement_assets.achievement4.clone(),
                     ..Default::default()
