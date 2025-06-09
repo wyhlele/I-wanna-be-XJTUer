@@ -1,11 +1,17 @@
 use std::collections::HashSet;
 
 use bevy::prelude::*;
-
 use bevy::sprite::Sprite;
-use crate::asset_loader::{BackGroundAssets, BuildingAssets, ImageAssets, MusicAssets, SceneAssets};
+
+use std::fs::File;
+use std::io::Write;
+use std::path::Path;
+
+use crate::asset_loader::{AchievementAssets, BackGroundAssets, BuildingAssets, ImageAssets, MusicAssets, SceneAssets};
 use crate::base::ground::spawn_single_box;
 use crate::base::wrap::spawn_once_warp;
+use crate::kid_saver::KidSaver;
+use crate::menu::achievement::Achievement;
 use crate::state::{GameState, NeedReload};
 
 use super::center::{BuildingState, ChangeBuilding};
@@ -320,6 +326,8 @@ fn do_move(
     mut commands: Commands,
     image_assets: Res<ImageAssets>,
     music_assets: Res<MusicAssets>,
+    achievement_assets: Res<AchievementAssets>,
+    mut kid_saver: ResMut<KidSaver>,
     state: Res<BuildingState>,
     keyboard_input:Res<ButtonInput<KeyCode>>,
     mut hua: ResMut<HuaState>,
@@ -419,7 +427,7 @@ fn do_move(
             _ => {}
         }
     }
-
+    let mut solve= 0;
     for (_, block) in query.iter(){
         if block.id==1{
             if block.x==0 && (a0&b0)!=6{
@@ -430,6 +438,11 @@ fn do_move(
             }
             if block.x==2 && (a2&b2)!=2{
                 return;
+            }
+            if block.x==0{
+                solve=1;
+            }else{
+                solve=2;
             }
         }
         if block.id==4{
@@ -452,6 +465,34 @@ fn do_move(
             }
             if block.x==2 && ((7&(!b2))!=2 || a2!=0){
                 return;
+            }
+        }
+    }
+
+    if kid_saver.solve!=3 {
+        kid_saver.solve |= solve;
+        let file_path = Path::new("save");
+        let mut file = match File::create(file_path) {
+            Ok(file) => file,
+            Err(_) => {
+                warn!("ERROR: cannot create file save");
+                return;
+            }
+        };
+        let numbers = [kid_saver.save_id as i32, kid_saver.achi as i32, kid_saver.solve as i32];
+        for &number in &numbers {
+            if let Err(_) = writeln!(file, "{}", number) {
+                warn!("ERROR: cannot create file save");
+                return;
+            }
+        }
+        if kid_saver.solve == 3{
+            if (kid_saver.achi>>4)&1==0{
+                commands.spawn(Achievement{time: 72, id: 4})
+                .insert(Sprite{
+                    image: achievement_assets.achievement4.clone(),
+                    ..Default::default()
+                }).insert(Transform::from_xyz(0., 0., -5.0));
             }
         }
     }

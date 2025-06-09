@@ -37,6 +37,7 @@ use festival::level3::Fest3Plugin;
 use festival::leaf::LeafPlugin;
 use kid_saver::KidSaverPlugin;
 use menu::startpage::StartPagePlugin;
+use menu::achievement::AchievementPagePlugin;
 use menu::endpage::EndPagePlugin;
 use museum::quiz1::Quiz1Plugin;
 use museum::quiz2::Quiz2Plugin;
@@ -99,6 +100,7 @@ fn main() {
         .add_plugins(BuildingEPlugin)
         .add_plugins(BuildingTopPlugin)
         .add_plugins(BossPlugin)
+        .add_plugins(AchievementPagePlugin)
         .add_plugins(RapierPhysicsPlugin::<NoUserData>::pixels_per_meter(100.0))
         // .add_plugins(RapierDebugRenderPlugin::default())
         .run();

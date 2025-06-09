@@ -5,9 +5,10 @@ use rand::Rng;
 use bevy::input::ButtonInput;
 use bevy::sprite::{TextureAtlas, TextureAtlasLayout,Sprite};
 
-use crate::asset_loader::{ImageAssets, MusicAssets};
+use crate::asset_loader::{AchievementAssets, ImageAssets, MusicAssets};
 use crate::festival::level2::Bike;
 use crate::kid_saver::KidSaver;
+use crate::menu::achievement::Achievement;
 use crate::schedule::InGameSet;
 use crate::state::{GameState, NeedReload, BGM};
 use crate::base::trap::Trap;
@@ -169,6 +170,8 @@ fn kid_movement_controls(
     mut query: Query<(Entity, &Transform, &mut Velocity, &mut Kid),With<Kid>>,
     keyboard_input:Res<ButtonInput<KeyCode>>,
     mut next_state: ResMut<NextState<GameState>>,
+    achievement_assets: Res<AchievementAssets>,
+    kid_saver: Res<KidSaver>,
 ){
     let Ok((entity, trans ,mut velocity, mut kid)) = query.get_single_mut() 
     else {
@@ -181,6 +184,14 @@ fn kid_movement_controls(
         velocity.linvel.x = MOVE_SPEED;
         kid.state = 0;
     }else if keyboard_input.pressed(KeyCode::KeyQ){
+        if (kid_saver.achi>>3)&1==0{
+            commands.spawn(Achievement{time: 72, id: 3})
+            .insert(Sprite{
+                image: achievement_assets.achievement3.clone(),
+                ..Default::default()
+            }).insert(Transform::from_xyz(0., 0., -5.0));
+        }
+
         next_state.set(GameState::GameOver);
         let mut rng = rand::thread_rng();
         let direction = Vec2::new(
@@ -282,6 +293,8 @@ fn kid_display_events(
     trap_query: Query<&Trap>,
     transforms: Query<&Transform>,
     bike_query: Query<&Bike>,
+    achievement_assets: Res<AchievementAssets>,
+    kid_saver: Res<KidSaver>,
 ) {
     for collision_event in collision_events.read() {
         match collision_event {
@@ -306,6 +319,13 @@ fn kid_display_events(
                     if is_bike1{
                         for mut item in kid_query.iter_mut(){
                             item.dead = 1;
+                        }
+                        if (kid_saver.achi>>1)&1==0{
+                            commands.spawn(Achievement{time: 72, id: 1})
+                            .insert(Sprite{
+                                image: achievement_assets.achievement1.clone(),
+                                ..Default::default()
+                            }).insert(Transform::from_xyz(0., 0., -5.0));
                         }
                     }else{
                         for mut item in kid_query.iter_mut(){
@@ -339,6 +359,13 @@ fn kid_display_events(
                     if is_bike2{
                         for mut item in kid_query.iter_mut(){
                             item.dead = 1;
+                        }
+                        if (kid_saver.achi>>1)&1==0{
+                            commands.spawn(Achievement{time: 72, id: 1})
+                            .insert(Sprite{
+                                image: achievement_assets.achievement1.clone(),
+                                ..Default::default()
+                            }).insert(Transform::from_xyz(0., 0., -5.0));
                         }
                     }else{
                         for mut item in kid_query.iter_mut(){

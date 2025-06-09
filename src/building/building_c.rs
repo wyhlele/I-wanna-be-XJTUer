@@ -3,9 +3,11 @@ use std::collections::HashSet;
 use bevy::prelude::*;
 
 use bevy::sprite::Sprite;
-use crate::asset_loader::{BackGroundAssets, BuildingAssets, ImageAssets, MusicAssets, SceneAssets};
+use crate::asset_loader::{AchievementAssets, BackGroundAssets, BuildingAssets, ImageAssets, MusicAssets, SceneAssets};
 use crate::base::ground::spawn_single_box;
 use crate::base::wrap::spawn_once_warp;
+use crate::kid_saver::KidSaver;
+use crate::menu::achievement::Achievement;
 use crate::state::{GameState, NeedReload};
 
 use super::center::{BuildingState, ChangeBuilding};
@@ -203,6 +205,8 @@ fn do_move(
     image_assets: Res<ImageAssets>,
     music_assets: Res<MusicAssets>,
     scene_assets: Res<SceneAssets>,
+    achievement_assets: Res<AchievementAssets>,
+    kid_saver: Res<KidSaver>,
     state: Res<BuildingState>,
     mut mypos: ResMut<MyPos>,
     keyboard_input:Res<ButtonInput<KeyCode>>,
@@ -367,6 +371,15 @@ fn do_move(
             ).insert(
                 Transform::from_xyz(BASEX+px, BASEY-32., -0.2)
             ).insert(Num);
+        }
+    }
+    if mypos.score > 10000{
+        if (kid_saver.achi>>5)&1==0{
+            commands.spawn(Achievement{time: 72, id: 5})
+            .insert(Sprite{
+                image: achievement_assets.achievement5.clone(),
+                ..Default::default()
+            }).insert(Transform::from_xyz(0., 0., -5.0));
         }
     }
 

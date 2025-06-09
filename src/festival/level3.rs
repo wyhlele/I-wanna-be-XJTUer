@@ -370,7 +370,14 @@ fn spawn_reload(
     .insert(GravityScale(0.0))
     .insert(Velocity::zero())
     .insert(Trap7)
-    .insert(
+    .insert(Move{
+        goal_pos: Vec2::new(BASEX+32., BASEY+144.),
+        linear_speed: 200.,
+        goal_angle: 0.,
+        angle_speed: -5.,
+        status: 0,
+        ..Default::default()
+    }).insert(
         RigidBody::Dynamic
     ).insert(
         CollisionGroups::new(
@@ -411,8 +418,8 @@ fn spawn_reload(
         )
     ).insert(NeedReload);
 
-    commands.spawn(Collider::cuboid(16.0, 64.0))
-    .insert(Transform::from_xyz(BASEX+64.,BASEY-48., 0.0))
+    commands.spawn(Collider::cuboid(2.0, 64.0))
+    .insert(Transform::from_xyz(BASEX+48.,BASEY-48., 0.0))
     .insert(Trig7{state:0})
     .insert(
         CollisionGroups::new(
@@ -643,7 +650,7 @@ fn do_trig7(
     mut trig7_query: Query<&mut Trig7>,
     mut trap5_query: Query<&mut Move,(With<Trap5>,Without<Trap6>,Without<Trap7>)>,
     mut trap6_query: Query<&mut Move,(With<Trap6>,Without<Trap7>,Without<Trap5>)>,
-    e7_query: Query<Entity,With<Trap7>>,
+    mut e7_query: Query<(Entity,&mut Move),With<Trap7>>,
     music_assets: Res<MusicAssets>,
 ){
     for collision_event in collision_events.read() {
@@ -663,7 +670,7 @@ fn do_trig7(
                         else{
                             continue;
                         };
-                        trap5.linear_speed = 1000.;
+                        trap5.linear_speed = 2000.;
                         trig7.state = 1;
                         commands.spawn(AudioPlayer::new(music_assets.trap.clone())).insert(NeedReload);
                     }else if trig7.state == 1{
@@ -671,24 +678,24 @@ fn do_trig7(
                         else{
                             continue;
                         };
-                        trap6.linear_speed = 1000.;
+                        trap6.linear_speed = 2000.;
                         trig7.state = 2;
                         commands.spawn(AudioPlayer::new(music_assets.trap.clone())).insert(NeedReload);
                     }else if trig7.state == 2{
-                        let Ok(e7) = e7_query.get_single()
+                        let Ok((e7,mut mv)) = e7_query.get_single_mut()
                         else{
                             continue;
                         };
                         commands.entity(e7).insert(Trap)
-                        .insert(Collider::cuboid(48., 64.))
-                        .insert(Move{
+                        .insert(Collider::cuboid(48., 64.));
+                        *mv = Move{
                             goal_pos: Vec2::new(BASEX+32., BASEY-48.),
                             linear_speed: 200.,
                             goal_angle: -180.,
                             angle_speed: -5.,
                             status: 1,
                             ..Default::default()
-                        });
+                        };
                         trig7.state = 3;
                         commands.spawn(AudioPlayer::new(music_assets.trap.clone())).insert(NeedReload);
                     }
@@ -716,8 +723,14 @@ fn do_trig8(
                 let is_entity2_a = trig8_query.get(*entity_a).is_ok();
                 let is_entity1_a = kid_query.get(*entity_a).is_ok();
                 let is_entity2_b = trig8_query.get(*entity_b).is_ok();
+                if leaf_num.num == 3{
+                    for item in trap9_query.iter(){
+                        commands.entity(item).despawn_recursive();
+                    }
+                }
                 let Ok(mut trap7) = trap7_query.get_single_mut()
                 else{
+                    info!("aaaa");
                     continue;
                 };
                 if is_entity1_b && is_entity2_a || is_entity1_a && is_entity2_b{
@@ -725,12 +738,8 @@ fn do_trig8(
                         trap7.goal_pos = Vec2::new(BASEX+32., BASEY-416.);
                         trap7.linear_speed = 500.;
                         trap7.status = 2;
+                        trap7.goal_angle = -180.;
                         commands.spawn(AudioPlayer::new(music_assets.trap.clone())).insert(NeedReload);
-                    }
-                    if leaf_num.num == 3{
-                        for item in trap9_query.iter(){
-                            commands.entity(item).despawn_recursive();
-                        }
                     }
                 }
             }

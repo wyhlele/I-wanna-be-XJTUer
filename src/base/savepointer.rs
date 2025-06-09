@@ -83,14 +83,14 @@ fn do_save(
                         let mut file = match File::create(file_path) {
                             Ok(file) => file,
                             Err(_) => {
-                                info!("ERROR: cannot create file save");
+                                warn!("ERROR: cannot create file save");
                                 return;
                             }
                         };
-                        let numbers = [pointer.id as i32];
+                        let numbers = [pointer.id as i32, kid_saver.achi as i32, kid_saver.solve as i32];
                         for &number in &numbers {
                             if let Err(_) = writeln!(file, "{}", number) {
-                                info!("ERROR: cannot create file save");
+                                warn!("ERROR: cannot create file save");
                                 return;
                             }
                         }
@@ -107,21 +107,21 @@ fn do_save(
                 let is_entity2_b = savepointer_query.get(*entity_b).is_ok();
                 if is_entity1_a && is_entity2_b{
                     let pointer = savepointer_query.get(*entity_b).unwrap();
-                    if pointer.id == 0 || pointer.id>kid_saver.save_id{
+                    if pointer.id == 0 || kid_saver.save_id >=13 || pointer.id>kid_saver.save_id{
                         kid_saver.save_id = pointer.id;
                         kid_saver.position = pointer.position;
                         let file_path = Path::new("save");
                         let mut file = match File::create(file_path) {
                             Ok(file) => file,
                             Err(_) => {
-                                info!("ERROR: cannot create file save");
+                                warn!("ERROR: cannot create file save");
                                 return;
                             }
                         };
-                        let numbers = [pointer.id as i32];
+                        let numbers = [pointer.id as i32, kid_saver.achi as i32, kid_saver.solve as i32];
                         for &number in &numbers {
                             if let Err(_) = writeln!(file, "{}", number) {
-                                info!("ERROR: cannot create file save");
+                                warn!("ERROR: cannot create file save");
                                 return;
                             }
                         }
