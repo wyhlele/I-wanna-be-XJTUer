@@ -15,7 +15,7 @@ use crate::state::{GameState, NeedReload};
 
 const BASEX: f32 = -800.0*3.;
 const BASEY: f32 = 608.0;
-const EPSILON: f32 = 1.0;
+const EPSILON: f32 = 5.0;
 const BEAM_LEN: f32 = 37.5*32.+384.;
 
 pub struct BossPlugin;

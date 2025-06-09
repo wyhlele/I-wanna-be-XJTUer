@@ -3,7 +3,7 @@ use bevy_rapier2d::prelude::*;
 
 use crate::schedule::InGameSet;
 
-const EPSILON: f32 = 1.0;
+const EPSILON: f32 = 5.0;
 const TO_RAD :f32 = 3.1415926 / 180.0;
 
 pub struct MovePlugin;
