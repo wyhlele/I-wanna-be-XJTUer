@@ -1,7 +1,7 @@
 use bevy::prelude::*;
 
-use std::fs;
-use std::io::{self, BufRead};
+use std::fs::File;
+use std::io::{self, BufRead, Write};
 use std::path::Path;
 
 use crate::asset_loader::{AchievementAssets, ImageAssets};
@@ -53,7 +53,7 @@ fn create_saver(
 ){
     let file_path = Path::new("save");
     if file_path.exists() {
-        let file = fs::File::open(file_path).expect("ERROR: cannot open file save");
+        let file = File::open(file_path).expect("ERROR: cannot open file save");
         let reader = io::BufReader::new(file);
 
         let mut numbers = Vec::new();
@@ -175,6 +175,22 @@ fn draw_achi(
 
         spawn_single_warp(&mut commands,&wr_image,&wr_atlas,-1600.-384.,-256.,BASEX,BASEY-256.);
         spawn_single_warp(&mut commands,&wr_image,&wr_atlas,BASEX-384.,BASEY-256.,-1600.,-256.);
+    }
+
+    let file_path = Path::new("save");
+    let mut file = match File::create(file_path) {
+        Ok(file) => file,
+        Err(_) => {
+            warn!("ERROR: cannot create file save");
+            return;
+        }
+    };
+    let numbers = [kid_saver.save_id as i32, kid_saver.achi as i32, kid_saver.solve as i32];
+    for &number in &numbers {
+        if let Err(_) = writeln!(file, "{}", number) {
+            warn!("ERROR: cannot create file save");
+            return;
+        }
     }
         
 }

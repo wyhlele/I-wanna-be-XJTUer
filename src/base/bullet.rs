@@ -21,7 +21,7 @@ pub struct BulletPlugin;
 impl Plugin for BulletPlugin{
     fn build(&self, app: &mut App){
         app.add_systems(Update, spawn_bullet.in_set(InGameSet::UserInput))
-        .add_systems(Update, (do_bullet,remove_bullet));
+        .add_systems(Update, do_bullet);
     }
 }
 
@@ -98,7 +98,7 @@ fn do_bullet(
                 let is_entity1_b = bullet_query.get(*entity_b).is_ok();
                 let is_entity2_a = boss_query.get(*entity_a).is_ok();
                 if is_entity1_b{
-                    commands.entity(*entity_b).insert(NeedRemove);
+                    commands.entity(*entity_b).despawn_recursive();
                 }
                 if is_entity1_b && is_entity2_a{
                     let mut boss = boss_query.get_mut(*entity_a).unwrap();
@@ -182,14 +182,3 @@ fn do_bullet(
         }
     }
 }
-
-
-fn remove_bullet(
-    mut commands: Commands,
-    mut bullet_query: Query<Entity,With<NeedRemove>>,
-){
-    for entity in bullet_query.iter_mut(){
-        commands.entity(entity).despawn_recursive();
-    }
-}
-
