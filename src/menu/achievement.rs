@@ -10,7 +10,6 @@ const BASEX: f32 = 0.0;
 const BASEY: f32 = 608.0;
 
 use crate::asset_loader::{AchievementAssets, ImageAssets, MusicAssets, SceneAssets};
-use crate::base::bullet::Bullet;
 use crate::base::kid::Kid;
 use crate::base::wrap::spawn_single_warp;
 use crate::kid_saver::KidSaver;
@@ -29,7 +28,7 @@ pub struct Achievement{
 struct Trig0;
 
 #[derive(Component, Debug)]
-struct Trig2;
+pub struct Trig2;
 
 #[derive(Component, Debug)]
 struct Trig8;
@@ -39,7 +38,7 @@ impl Plugin for AchievementPagePlugin{
     fn build(&self, app: &mut App){
         app.add_systems(PostStartup,spawn_menu)
         .add_systems(Update,do_show)
-        .add_systems(Update,(do_trig0,do_trig2,do_trig8).in_set(InGameSet::EntityUpdates));
+        .add_systems(Update,(do_trig0,do_trig8).in_set(InGameSet::EntityUpdates));
     }
 }
 
@@ -251,6 +250,8 @@ fn do_show(
                     spawn_single_warp(&mut commands,&wr_image,&wr_atlas,-1600.-384.,-256.,BASEX,BASEY-256.);
                     spawn_single_warp(&mut commands,&wr_image,&wr_atlas,BASEX-384.,BASEY-256.,-1600.,-256.);
                 }
+            }else{
+                trans.translation = Vec3::new(camera.translation.x+256., camera.translation.y-256., 0.5);
             }
             if achi.time < 0{
                 commands.entity(entity).despawn_recursive();
@@ -291,38 +292,6 @@ fn do_trig0(
         }
     }
 }
-
-
-fn do_trig2(
-    mut commands: Commands,
-    mut collision_events: EventReader<CollisionEvent>,
-    bullet_query: Query<&Bullet>,
-    trig2_query: Query<&Trig2>,
-    achievement_assets: Res<AchievementAssets>,
-    kid_saver: Res<KidSaver>,
-){
-    for collision_event in collision_events.read() {
-        match collision_event {
-            CollisionEvent::Started(entity_a, entity_b, _) => {
-                let is_entity1_b = bullet_query.get(*entity_b).is_ok();
-                let is_entity2_a = trig2_query.get(*entity_a).is_ok();
-                let is_entity1_a = bullet_query.get(*entity_a).is_ok();
-                let is_entity2_b = trig2_query.get(*entity_b).is_ok();
-                if is_entity1_b && is_entity2_a || is_entity1_a && is_entity2_b{
-                    if (kid_saver.achi>>2)&1==0{
-                        commands.spawn(Achievement{time: 149, id: 2})
-                        .insert(Sprite{
-                            image: achievement_assets.achievement2.clone(),
-                            ..Default::default()
-                        }).insert(Transform::from_xyz(0., 0., -5.0));
-                    }
-                }
-            }
-            _ => {}
-        }
-    }
-}
-
 
 fn do_trig8(
     mut commands: Commands,

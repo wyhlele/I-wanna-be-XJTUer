@@ -3,18 +3,17 @@ use bevy_rapier2d::prelude::*;
 
 use bevy::sprite::Sprite;
 
-use crate::asset_loader::{ImageAssets, MusicAssets};
+use crate::asset_loader::{AchievementAssets, ImageAssets, MusicAssets};
 use crate::base::kid::Kid;
 use crate::base::wrap::spawn_once_warp;
 use crate::boss::boss::{Blood, Boss};
+use crate::kid_saver::KidSaver;
+use crate::menu::achievement::{Achievement, Trig2};
 use crate::schedule::InGameSet;
 use crate::state::{BGMReload, NeedReload, BGM};
 
 #[derive(Component, Debug, Default)]
 pub struct Bullet;
-
-#[derive(Component, Debug, Default)]
-pub struct NeedRemove;
 
 pub struct BulletPlugin;
 
@@ -84,12 +83,15 @@ fn spawn_bullet(
 fn do_bullet(
     mut commands: Commands,
     mut collision_events: EventReader<CollisionEvent>,
-    mut boss_query: Query<&mut Boss,(With<Boss>,Without<BGM>,Without<Blood>,Without<Bullet>)>,
-    mut blood_query: Query<&mut Sprite,(With<Blood>,Without<Boss>,Without<BGM>,Without<Bullet>)>,
-    bgm_query: Query<Entity,(With<BGM>,Without<Boss>,Without<Blood>,Without<Bullet>)>,
-    bullet_query: Query<&Bullet,(With<Bullet>,Without<BGM>,Without<Boss>,Without<Blood>,Without<NeedRemove>)>,
+    mut boss_query: Query<&mut Boss,(With<Boss>,Without<BGM>,Without<Blood>,Without<Bullet>,Without<Trig2>)>,
+    mut blood_query: Query<&mut Sprite,(With<Blood>,Without<Boss>,Without<BGM>,Without<Bullet>,Without<Trig2>)>,
+    bgm_query: Query<Entity,(With<BGM>,Without<Boss>,Without<Blood>,Without<Bullet>,Without<Trig2>)>,
+    bullet_query: Query<&Bullet,(With<Bullet>,Without<BGM>,Without<Boss>,Without<Blood>,Without<Trig2>)>,
+    trig2_query: Query<&Trig2,(With<Trig2>,Without<Bullet>,Without<BGM>,Without<Boss>,Without<Blood>)>,
     image_assets: Res<ImageAssets>,
     music_assets: Res<MusicAssets>,
+    kid_saver: Res<KidSaver>,
+    achievement_assets: Res<AchievementAssets>,
     mut texture_atlases: ResMut<Assets<TextureAtlasLayout>>
 ){
     for collision_event in collision_events.read() {
@@ -97,9 +99,20 @@ fn do_bullet(
             CollisionEvent::Started(entity_a, entity_b, _) => {
                 let is_entity1_b = bullet_query.get(*entity_b).is_ok();
                 let is_entity2_a = boss_query.get(*entity_a).is_ok();
+                let is_entity2_c = trig2_query.get(*entity_a).is_ok();
                 if is_entity1_b{
                     commands.entity(*entity_b).despawn_recursive();
                 }
+                if is_entity1_b && is_entity2_c{
+                    if (kid_saver.achi>>2)&1==0{
+                        commands.spawn(Achievement{time: 149, id: 2})
+                        .insert(Sprite{
+                            image: achievement_assets.achievement2.clone(),
+                            ..Default::default()
+                        }).insert(Transform::from_xyz(0., 0., -5.0));
+                    }
+                }
+
                 if is_entity1_b && is_entity2_a{
                     let mut boss = boss_query.get_mut(*entity_a).unwrap();
                     if boss.countdown>0{
@@ -136,11 +149,20 @@ fn do_bullet(
                     }
                 }
 
-
                 let is_entity2_b = boss_query.get(*entity_b).is_ok();
                 let is_entity1_a = bullet_query.get(*entity_a).is_ok();
+                let is_entity1_c = trig2_query.get(*entity_a).is_ok();
                 if is_entity1_a{
-                    commands.entity(*entity_a).insert(NeedRemove);
+                    commands.entity(*entity_a).despawn_recursive();
+                }
+                if is_entity1_c && is_entity2_b{
+                    if (kid_saver.achi>>2)&1==0{
+                        commands.spawn(Achievement{time: 149, id: 2})
+                        .insert(Sprite{
+                            image: achievement_assets.achievement2.clone(),
+                            ..Default::default()
+                        }).insert(Transform::from_xyz(0., 0., -5.0));
+                    }
                 }
                 if is_entity1_a && is_entity2_b{
                     let mut boss = boss_query.get_mut(*entity_b).unwrap();
